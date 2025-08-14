@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Everything Shop - Eco-Friendly Products</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray for background */
+            padding-top: 72px; /* Added padding to prevent content from going under the fixed header */
+        }
+        /* Custom scrollbar for aesthetic appeal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Medium gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Darker gray on hover */
+        }
+        /* Ephemeral message box styles */
+        .ephemeral-message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1000;
+            text-wrap: balance; /* Improves text wrapping for messages */
+            max-width: 90%;
+        }
+        .ephemeral-message-box.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section (Consistent with other pages) -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592c-.512.598-1.482 1-2.592 1-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2-1.343-2-3-2z"></path>
+            </svg>
+            <a href="index.html" class="text-2xl font-bold text-gray-800">The Everything Shop</a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="hidden md:flex space-x-8">
+            <a href="index.html" class="text-green-700 font-bold transition duration-300">Home</a> <!-- Highlight current page -->
+            <a href="productlisting.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Shop</a>
+            <a href="shoppingcart.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
+            <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Checkout</a>
+            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
+            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">About Us</a>
+            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Contact</a>
+            <!-- Dynamic Account/Logout Link -->
+            <span id="auth-link-container">
+                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+            </span>
+        </nav>
+
+        <!-- Call to Action / Icons -->
+        <div class="flex items-center space-x-4">
+            <!-- Cart Icon -->
+            <a href="shoppingcart.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </a>
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block">
+                Shop Now
+            </button>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-green-500 to-green-700 text-white py-20 md:py-32 relative overflow-hidden rounded-b-3xl shadow-xl">
+        <div class="container mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row items-center justify-between">
+            <div class="text-center md:text-left md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">
+                    Sustainable Choices, <br class="hidden md:inline"> Everyday Living.
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 opacity-90">
+                    Discover eco-friendly products for a better planet and a healthier you.
+                </p>
+                <a href="productlisting.html" class="inline-block bg-white text-green-700 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                    Explore Our Shop
+                </a>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <img src="images/fresh vegetables.jpg" alt="Eco-Friendly Products Assortment" class="rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 max-w-full h-auto">
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Categories Section -->
+    <section class="py-16 md:py-20 px-6 md:px-8 lg:px-12 bg-gray-50">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-12">Featured Categories</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Category Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Home" alt="Home & Living" class="w-full h-48 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Home & Living</h3>
+                        <p class="text-gray-600 text-sm mb-4">Sustainable essentials for your home.</p>
+                        <a href="productlisting.html?category=home" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                    </div>
+                </div>
+                <!-- Category Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Fashion" alt="Fashion & Apparel" class="w-full h-48 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sustainable Fashion</h3>
+                        <p class="text-gray-600 text-sm mb-4">Ethically sourced, stylish apparel.</p>
+                        <a href="productlisting.html?category=fashion" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                    </div>
+                </div>
+                <!-- Category Card 3 -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Beauty" alt="Beauty & Wellness" class="w-full h-48 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Beauty & Wellness</h3>
+                        <p class="text-gray-600 text-sm mb-4">Natural and organic care products.</p>
+                        <a href="productlisting.html?category=beauty" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                    </div>
+                </div>
+                <!-- Category Card 4 -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Kids" alt="Kids & Baby" class="w-full h-48 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Kids & Baby</h3>
+                        <p class="text-gray-600 text-sm mb-4">Safe, sustainable items for your little ones.</p>
+                        <a href="productlisting.html?category=kids" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="py-16 md:py-20 px-6 md:px-8 lg:px-12 bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-12">Why Choose The Everything Shop?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="flex flex-col items-center">
+                    <div class="bg-green-100 rounded-full p-4 mb-6">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.92 12c0 3.072 1.873 5.783 4.582 7.15A13.928 13.928 0 0012 21c2.405 0 4.707-.847 6.559-2.252A13.928 13.928 0 0021.08 12c0-3.072-1.873-5.783-4.582-7.15z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Curated Quality</h3>
+                    <p class="text-gray-600">Every product is hand-picked for its sustainability, durability, and positive impact.</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="bg-green-100 rounded-full p-4 mb-6">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Ethical Sourcing</h3>
+                    <p class="text-gray-600">We partner with brands committed to fair labor practices and responsible production.</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="bg-green-100 rounded-full p-4 mb-6">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Community Focused</h3>
+                    <p class="text-gray-600">A portion of every sale supports environmental initiatives worldwide.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-16 md:py-20 px-6 md:px-8 lg:px-12 rounded-t-3xl shadow-xl">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Ready to Make a Difference?</h2>
+            <p class="text-xl md:text-2xl mb-10 opacity-90">
+                Join our movement towards a more sustainable future. Shop consciously today!
+            </p>
+            <a href="productlisting.html" class="inline-block bg-white text-green-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                Start Shopping Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer Section (Consistent with other pages) -->
+    <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">The Everything Shop</h3>
+                <p class="text-gray-400 text-sm">Dedicated to bringing you the best sustainable and eco-friendly products for a better world.</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
+                </ul>
+            </div>
+            <!-- Categories -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Categories</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Home & Living</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Fashion</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Beauty & Wellness</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Kids & Baby</a></li>
+                </ul>
+            </div>
+            <!-- Contact Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Contact Us</h3>
+                <p class="text-gray-400 text-sm">
+                    123 Eco-Lane, Green City, GC 10001<br>
+                    Email: info@everythingshop.com<br>
+                    Phone: +1 (555) 123-4567
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+            &copy; 2025 The Everything Shop. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Global Firebase configuration and auth token provided by Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Fallback for local testing
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDUfNKlbvZb0qBOAHx6xE9tt2Ynt3Ni_WY",
+            authDomain: "the-everthing-shop.firebaseapp.com",
+            projectId: "the-everthing-shop",
+            storageBucket: "the-everthing-shop.firebasestorage.app",
+            messagingSenderId: "221853475531",
+            appId: "1:221853475531:web:b19738e10abb9c5379314e",
+            measurementId: "G-CE0PH39T4E"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let cart = []; // To store cart items from localStorage
+
+        // DOM Elements for header cart count and auth link
+        const cartCountElement = document.getElementById('cart-count');
+        const cartIcon = document.getElementById('cart-icon');
+        const authLinkContainer = document.getElementById('auth-link-container'); // Container for dynamic auth link
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long the message should be visible in milliseconds.
+         * @param {string} type - 'success' or 'error' for styling.
+         */
+        function showEphemeralMessage(message, duration = 3000, type = 'info') {
+            let messageBox = document.getElementById('ephemeral-message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'ephemeral-message-box';
+                messageBox.className = 'ephemeral-message-box'; // Apply base styles
+                document.body.appendChild(messageBox);
+            }
+
+            // Reset classes and apply type-specific styling
+            messageBox.className = 'ephemeral-message-box'; // Reset to base
+            if (type === 'success') {
+                messageBox.style.backgroundColor = 'rgba(21, 128, 61, 0.8)'; // Green-800
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = 'rgba(220, 38, 38, 0.8)'; // Red-600
+            } else {
+                messageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Default dark
+            }
+
+            messageBox.textContent = message;
+            messageBox.classList.add('visible');
+
+            setTimeout(() => {
+                messageBox.classList.remove('visible');
+                // Hide completely after transition to avoid taking up space/being focusable
+                setTimeout(() => messageBox.style.backgroundColor = '', 300); // Clear background after transition
+            }, duration);
+        }
+
+        /**
+         * Updates the cart item count displayed in the header.
+         */
+        function updateCartCountDisplay() {
+            try {
+                const storedCart = localStorage.getItem('ecoShopCart');
+                cart = storedCart ? JSON.parse(storedCart) : [];
+            } catch (e) {
+                console.error("Error loading cart from local storage:", e);
+                cart = [];
+            }
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            if (totalItems > 0) {
+                cartCountElement.classList.remove('hidden');
+            } else {
+                cartCountElement.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showEphemeralMessage("You have been logged out.", 3000, 'info');
+                // UI update and redirection handled by onAuthStateChanged
+            } catch (error) {
+                console.error("Logout Error:", error);
+                showEphemeralMessage("Error logging out. Please try again.", 3000, 'error');
+            }
+        }
+
+        // --- Firebase Authentication Listener for Header ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const displayName = user.displayName || user.email;
+                authLinkContainer.innerHTML = `
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            } else {
+                authLinkContainer.innerHTML = `
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                `;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with custom token."))
+                        .catch((error) => console.error("Error signing in with custom token:", error));
+                } else {
+                    signInAnonymously(auth)
+                        .then(() => console.log("Signed in anonymously."))
+                        .catch((error) => console.error("Error signing in anonymously:", error));
+                }
+            }
+        });
+
+
+        // --- Event Listeners for Page Elements ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header "Shop Now" button (in header, for consistency)
+            document.querySelector('header .bg-green-600').addEventListener('click', () => {
+                window.location.href = 'productlisting.html';
+            });
+
+            // Cart icon click handler
+            cartIcon.addEventListener('click', (e) => {
+                // No e.preventDefault() here, as we want the link to work
+            });
+        });
+
+        // Initialize cart count when the DOM is fully loaded
+        window.onload = updateCartCountDisplay;
+    </script>
+</body>
+</html>

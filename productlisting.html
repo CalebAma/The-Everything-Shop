@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop All Products - The Everything Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray for background */
+            padding-top: 72px; /* Added padding to prevent content from going under the fixed header */
+        }
+        /* Custom scrollbar for aesthetic appeal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Medium gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Darker gray on hover */
+        }
+        /* Ephemeral message box styles */
+        .ephemeral-message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1000;
+            text-wrap: balance; /* Improves text wrapping for messages */
+            max-width: 90%;
+        }
+        .ephemeral-message-box.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section (Consistent with other pages) -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592c-.512.598-1.482 1-2.592 1-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2-1.343-2-3-2z"></path>
+            </svg>
+            <a href="index.html" class="text-2xl font-bold text-gray-800">The Everything Shop</a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="hidden md:flex space-x-8">
+            <a href="index.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Home</a>
+            <a href="productlisting.html" class="text-green-700 font-bold transition duration-300">Shop</a> <!-- Highlight current page -->
+            <a href="shoppingcarts.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
+            <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Checkout</a>
+            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
+            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">About Us</a>
+            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Contact</a>
+            <!-- Dynamic Account/Logout Link -->
+            <span id="auth-link-container">
+                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+            </span>
+        </nav>
+
+        <!-- Call to Action / Icons -->
+        <div class="flex items-center space-x-4">
+            <!-- Cart Icon -->
+            <a href="shoppingcart.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </a>
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block">
+                Shop Now
+            </button>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Section: Product Listing -->
+    <main class="py-16 md:py-20 px-6 md:px-8 lg:px-12">
+        <div class="container mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 text-center mb-12">Our Eco-Friendly Products</h1>
+
+            <div class="flex flex-col md:flex-row gap-8 mb-12">
+                <!-- Sidebar Filters (Placeholder) -->
+                <aside class="w-full md:w-1/4 bg-white rounded-xl shadow-lg p-6 h-fit sticky top-24">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Filter Products</h2>
+                    <div class="space-y-6">
+                        <!-- Category Filter -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Category</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-gray-600 cursor-pointer">
+                                    <input type="checkbox" value="all" checked class="form-checkbox text-green-600 rounded">
+                                    <span class="ml-2">All Products</span>
+                                </label>
+                                <label class="flex items-center text-gray-600 cursor-pointer">
+                                    <input type="checkbox" value="home" class="form-checkbox text-green-600 rounded">
+                                    <span class="ml-2">Home & Living</span>
+                                </label>
+                                <label class="flex items-center text-gray-600 cursor-pointer">
+                                    <input type="checkbox" value="fashion" class="form-checkbox text-green-600 rounded">
+                                    <span class="ml-2">Sustainable Fashion</span>
+                                </label>
+                                <label class="flex items-center text-gray-600 cursor-pointer">
+                                    <input type="checkbox" value="beauty" class="form-checkbox text-green-600 rounded">
+                                    <span class="ml-2">Beauty & Wellness</span>
+                                </label>
+                                <label class="flex items-center text-gray-600 cursor-pointer">
+                                    <input type="checkbox" value="kids" class="form-checkbox text-green-600 rounded">
+                                    <span class="ml-2">Kids & Baby</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Price Range</h3>
+                            <input type="range" min="0" max="200" value="200" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600" id="price-range">
+                            <p class="text-center text-gray-600 text-sm mt-2">Up to GHS <span id="price-value">200</span></p>
+                        </div>
+
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">Apply Filters</button>
+                    </div>
+                </aside>
+
+                <!-- Product Grid -->
+                <section class="w-full md:w-3/4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Product Card 1 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Bamboo+Brush" alt="Bamboo Toothbrush Set" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Bamboo Toothbrush Set</h3>
+                                <p class="text-gray-600 text-sm mb-4">Biodegradable toothbrushes for a sustainable smile.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 15.00</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p001" data-name="Bamboo Toothbrush Set" data-price="15.00">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Product Card 2 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Reusable+Bag" alt="Reusable Shopping Bag" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Organic Reusable Bag</h3>
+                                <p class="text-gray-600 text-sm mb-4">Strong, foldable, and stylish for your groceries.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 25.50</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p002" data-name="Organic Reusable Bag" data-price="25.50">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Product Card 3 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Eco+Bottle" alt="Eco-Friendly Water Bottle" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Insulated Eco Bottle</h3>
+                                <p class="text-gray-600 text-sm mb-4">Keeps drinks cold/hot. Made from recycled materials.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 40.00</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p003" data-name="Insulated Eco Bottle" data-price="40.00">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Product Card 4 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Zero+Waste+Kit" alt="Zero Waste Starter Kit" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Zero Waste Starter Kit</h3>
+                                <p class="text-gray-600 text-sm mb-4">Everything you need to kickstart your zero-waste journey.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 85.00</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p004" data-name="Zero Waste Starter Kit" data-price="85.00">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Product Card 5 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Shampoo+Bar" alt="Natural Shampoo Bar" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Natural Shampoo Bar</h3>
+                                <p class="text-gray-600 text-sm mb-4">Plastic-free, nourishing, and great for travel.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 30.00</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p005" data-name="Natural Shampoo Bar" data-price="30.00">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Product Card 6 -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Beeswax+Wraps" alt="Beeswax Food Wraps" class="w-full h-56 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Beeswax Food Wraps (Set)</h3>
+                                <p class="text-gray-600 text-sm mb-4">Reusable alternative to plastic cling wrap.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-green-700">GHS 35.00</span>
+                                    <button class="add-to-cart-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" data-id="p006" data-name="Beeswax Food Wraps" data-price="35.00">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more product cards as needed -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section (Consistent with other pages) -->
+    <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">The Everything Shop</h3>
+                <p class="text-gray-400 text-sm">Dedicated to bringing you the best sustainable and eco-friendly products for a better world.</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
+                </ul>
+            </div>
+            <!-- Categories -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Categories</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Home & Living</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Fashion</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Beauty & Wellness</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Kids & Baby</a></li>
+                </ul>
+            </div>
+            <!-- Contact Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Contact Us</h3>
+                <p class="text-gray-400 text-sm">
+                    123 Eco-Lane, Green City, GC 10001<br>
+                    Email: info@everythingshop.com<br>
+                    Phone: +1 (555) 123-4567
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+            &copy; 2025 The Everything Shop. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Global Firebase configuration and auth token provided by Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Fallback for local testing
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDUfNKlbvZb0qBOAHx6xE9tt2Ynt3Ni_WY",
+            authDomain: "the-everthing-shop.firebaseapp.com",
+            projectId: "the-everthing-shop",
+            storageBucket: "the-everthing-shop.firebasestorage.app",
+            messagingSenderId: "221853475531",
+            appId: "1:221853475531:web:b19738e10abb9c5379314e",
+            measurementId: "G-CE0PH39T4E"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let cart = []; // To store cart items from localStorage
+
+        // DOM Elements
+        const cartCountElement = document.getElementById('cart-count');
+        const cartIcon = document.getElementById('cart-icon');
+        const authLinkContainer = document.getElementById('auth-link-container'); // Container for dynamic auth link
+        const productGrid = document.querySelector('section.md\\:w-3\\/4 .grid'); // Target the product grid
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long the message should be visible in milliseconds.
+         * @param {string} type - 'success' or 'error' for styling.
+         */
+        function showEphemeralMessage(message, duration = 3000, type = 'info') {
+            let messageBox = document.getElementById('ephemeral-message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'ephemeral-message-box';
+                messageBox.className = 'ephemeral-message-box'; // Apply base styles
+                document.body.appendChild(messageBox);
+            }
+
+            // Reset classes and apply type-specific styling
+            messageBox.className = 'ephemeral-message-box'; // Reset to base
+            if (type === 'success') {
+                messageBox.style.backgroundColor = 'rgba(21, 128, 61, 0.8)'; // Green-800
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = 'rgba(220, 38, 38, 0.8)'; // Red-600
+            } else {
+                messageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Default dark
+            }
+
+            messageBox.textContent = message;
+            messageBox.classList.add('visible');
+
+            setTimeout(() => {
+                messageBox.classList.remove('visible');
+                // Hide completely after transition to avoid taking up space/being focusable
+                setTimeout(() => messageBox.style.backgroundColor = '', 300); // Clear background after transition
+            }, duration);
+        }
+
+        /**
+         * Loads cart data from localStorage.
+         */
+        function loadCartFromLocalStorage() {
+            try {
+                const storedCart = localStorage.getItem('ecoShopCart');
+                cart = storedCart ? JSON.parse(storedCart) : [];
+            } catch (e) {
+                console.error("Error loading cart from local storage:", e);
+                cart = []; // Reset cart if corrupted
+            }
+        }
+
+        /**
+         * Saves cart data to localStorage.
+         */
+        function saveCartToLocalStorage() {
+            try {
+                localStorage.setItem('ecoShopCart', JSON.stringify(cart));
+            } catch (e) {
+                console.error("Error saving cart to local storage:", e);
+            }
+        }
+
+        /**
+         * Updates the cart item count displayed in the header.
+         */
+        function updateCartCountDisplay() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            if (totalItems > 0) {
+                cartCountElement.classList.remove('hidden');
+            } else {
+                cartCountElement.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Adds a product to the cart.
+         * @param {string} id - Product ID.
+         * @param {string} name - Product name.
+         * @param {number} price - Product price.
+         */
+        function addToCart(id, name, price) {
+            const existingItemIndex = cart.findIndex(item => item.id === id);
+
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+
+            saveCartToLocalStorage();
+            updateCartCountDisplay();
+            showEphemeralMessage(`${name} added to cart!`, 3000, 'success');
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showEphemeralMessage("You have been logged out.", 3000, 'info');
+                // UI update and redirection handled by onAuthStateChanged
+            } catch (error) {
+                console.error("Logout Error:", error);
+                showEphemeralMessage("Error logging out. Please try again.", 3000, 'error');
+            }
+        }
+
+        // --- Firebase Authentication Listener for Header ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const displayName = user.displayName || user.email;
+                authLinkContainer.innerHTML = `
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            } else {
+                authLinkContainer.innerHTML = `
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                `;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with custom token."))
+                        .catch((error) => console.error("Error signing in with custom token:", error));
+                } else {
+                    signInAnonymously(auth)
+                        .then(() => console.log("Signed in anonymously."))
+                        .catch((error) => console.error("Error signing in anonymously:", error));
+                }
+            }
+        });
+
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCartFromLocalStorage(); // Load cart on page load
+            updateCartCountDisplay(); // Update display immediately
+
+            // Add event listeners for "Add to Cart" buttons
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = button.dataset.id;
+                    const name = button.dataset.name;
+                    const price = parseFloat(button.dataset.price);
+                    addToCart(id, name, price);
+                });
+            });
+
+            // Header "Shop Now" button
+            document.querySelector('header .bg-green-600').addEventListener('click', () => {
+                window.location.href = 'productlisting.html';
+            });
+
+            // Cart icon click handler
+            cartIcon.addEventListener('click', (e) => {
+                // No e.preventDefault() here, as we want the link to work
+            });
+
+            // Handle URL parameters for category filter (e.g., from index.html)
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('category');
+            if (categoryParam) {
+                const categoryCheckboxes = document.querySelectorAll('input[type="checkbox"][value]');
+                categoryCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false; // Uncheck all first
+                });
+                const targetCheckbox = document.querySelector(`input[type="checkbox"][value="${categoryParam}"]`);
+                if (targetCheckbox) {
+                    targetCheckbox.checked = true; // Check the relevant one
+                } else {
+                    // If category doesn't exist, default to "All Products"
+                    document.querySelector('input[type="checkbox"][value="all"]').checked = true;
+                }
+                // In a real app, you'd trigger a filter function here
+                console.log(`Initial category filter: ${categoryParam}`);
+            }
+
+            // Price Range Slider functionality
+            const priceRange = document.getElementById('price-range');
+            const priceValue = document.getElementById('price-value');
+            if (priceRange && priceValue) {
+                priceValue.textContent = priceRange.value; // Set initial value
+                priceRange.addEventListener('input', () => {
+                    priceValue.textContent = priceRange.value;
+                    // In a real app, you'd trigger a filter function here
+                });
+            }
+        });
+
+        // Initialize cart count when the DOM is fully loaded
+        window.onload = updateCartCountDisplay;
+    </script>
+</body>
+</html>

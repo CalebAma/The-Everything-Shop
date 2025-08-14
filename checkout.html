@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - The Everything Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray for background */
+            padding-top: 72px; /* Added padding to prevent content from going under the fixed header */
+        }
+        /* Custom scrollbar for aesthetic appeal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Medium gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Darker gray on hover */
+        }
+        /* Ephemeral message box styles */
+        .ephemeral-message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1000;
+            text-wrap: balance; /* Improves text wrapping for messages */
+            max-width: 90%;
+        }
+        .ephemeral-message-box.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section (Consistent with other pages) -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592c-.512.598-1.482 1-2.592 1-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2-1.343-2-3-2z"></path>
+            </svg>
+            <a href="index.html" class="text-2xl font-bold text-gray-800">The Everything Shop</a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="hidden md:flex space-x-8">
+            <a href="index.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Home</a>
+            <a href="productlisting.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Shop</a>
+            <a href="shoppingcarts.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
+            <a href="checkout.html" class="text-green-700 font-bold transition duration-300">Checkout</a> <!-- Highlight current page -->
+            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
+            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">About Us</a>
+            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Contact</a>
+            <!-- Dynamic Account/Logout Link -->
+            <span id="auth-link-container">
+                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+            </span>
+        </nav>
+
+        <!-- Call to Action / Icons -->
+        <div class="flex items-center space-x-4">
+            <!-- Cart Icon -->
+            <a href="shoppingcarts.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </a>
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block">
+                Shop Now
+            </button>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Section: Checkout Form -->
+    <main class="py-16 md:py-20 px-6 md:px-8 lg:px-12">
+        <div class="container mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 text-center mb-12">Secure Checkout</h1>
+
+            <!-- Empty Cart Message (if navigated directly or cart became empty) -->
+            <div id="empty-cart-checkout-message" class="hidden text-center py-20">
+                <p class="text-gray-600 text-xl mb-6">Your cart is empty. Please add items before checking out.</p>
+                <a href="productlisting.html" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300">
+                    Go to Shop
+                </a>
+            </div>
+
+            <div id="checkout-content" class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Shipping & Payment Information -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Shipping & Payment</h2>
+                    <form id="checkout-form" class="space-y-6">
+                        <!-- Customer Information -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Contact Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="first-name" class="block text-gray-700 text-sm font-medium mb-1">First Name</label>
+                                    <input type="text" id="first-name" name="first-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                </div>
+                                <div>
+                                    <label for="last-name" class="block text-gray-700 text-sm font-medium mb-1">Last Name</label>
+                                    <input type="text" id="last-name" name="last-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="email" class="block text-gray-700 text-sm font-medium mb-1">Email Address</label>
+                                    <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="phone" class="block text-gray-700 text-sm font-medium mb-1">Phone Number (Optional)</label>
+                                    <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Shipping Address</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="address-line1" class="block text-gray-700 text-sm font-medium mb-1">Address Line 1</label>
+                                    <input type="text" id="address-line1" name="address-line1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                </div>
+                                <div>
+                                    <label for="address-line2" class="block text-gray-700 text-sm font-medium mb-1">Address Line 2 (Optional)</label>
+                                    <input type="text" id="address-line2" name="address-line2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="city" class="block text-gray-700 text-sm font-medium mb-1">City</label>
+                                        <input type="text" id="city" name="city" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                    </div>
+                                    <div>
+                                        <label for="state" class="block text-gray-700 text-sm font-medium mb-1">State / Region</label>
+                                        <input type="text" id="state" name="state" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                    </div>
+                                    <div>
+                                        <label for="zip-code" class="block text-gray-700 text-sm font-medium mb-1">Zip / Postal Code</label>
+                                        <input type="text" id="zip-code" name="zip-code" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                    </div>
+                                    <div>
+                                        <label for="country" class="block text-gray-700 text-sm font-medium mb-1">Country</label>
+                                        <select id="country" name="country" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                            <option value="">Select Country</option>
+                                            <option value="GH">Ghana</option>
+                                            <option value="US">United States</option>
+                                            <option value="CA">Canada</option>
+                                            <option value="GB">United Kingdom</option>
+                                            <option value="AU">Australia</option>
+                                            <!-- Add more countries as needed -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information (Placeholder) -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Payment Method</h3>
+                            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                <p class="text-gray-600 mb-4">Payment processing integration would go here. For this demo, payment is simulated.</p>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="card-number" class="block text-gray-700 text-sm font-medium mb-1">Card Number</label>
+                                        <input type="text" id="card-number" name="card-number" placeholder="XXXX XXXX XXXX XXXX" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="[0-9]{13,16}" title="Credit card number" required>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="expiry-date" class="block text-gray-700 text-sm font-medium mb-1">Expiry (MM/YY)</label>
+                                            <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="(0[1-9]|1[0-2])\/([0-9]{2})" title="MM/YY format" required>
+                                        </div>
+                                        <div>
+                                            <label for="cvv" class="block text-gray-700 text-sm font-medium mb-1">CVV</label>
+                                            <input type="text" id="cvv" name="cvv" placeholder="CVV" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="[0-9]{3,4}" title="3 or 4 digit CVV" required>
+                                    </div>
+                                    </div>
+                                    <div>
+                                        <label for="card-name" class="block text-gray-700 text-sm font-medium mb-1">Name on Card</label>
+                                        <input type="text" id="card-name" name="card-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-6 md:p-8 sticky top-24 h-fit">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
+                    <div id="order-summary-items" class="border-b border-gray-200 pb-4 mb-4 space-y-3">
+                        <!-- Order items will be dynamically loaded here -->
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-lg">
+                            <span class="text-gray-700">Subtotal:</span>
+                            <span id="order-subtotal" class="font-bold text-green-700">GHS 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg text-gray-600">
+                            <span>Shipping:</span>
+                            <span id="order-shipping">GHS 5.00</span> <!-- Fixed shipping for demo -->
+                        </div>
+                        <div class="flex justify-between items-center text-lg text-gray-600">
+                            <span>Tax (5%):</span>
+                            <span id="order-tax">GHS 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xl font-bold border-t border-gray-200 pt-4 mt-4">
+                            <span>Total:</span>
+                            <span id="order-total" class="text-green-800">GHS 0.00</span>
+                        </div>
+                    </div>
+                    <button id="place-order-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 uppercase tracking-wide mt-8">
+                        Place Order
+                    </button>
+                    <p class="text-xs text-gray-500 text-center mt-4">By placing your order, you agree to our <a href="#" class="text-green-600 hover:underline">Terms & Conditions</a>.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section (Consistent with other pages) -->
+    <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">The Everything Shop</h3>
+                <p class="text-gray-400 text-sm">Dedicated to bringing you the best sustainable and eco-friendly products for a better world.</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
+                </ul>
+            </div>
+            <!-- Categories -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Categories</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Home & Living</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Fashion</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Beauty & Wellness</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Kids & Baby</a></li>
+                </ul>
+            </div>
+            <!-- Contact Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Contact Us</h3>
+                <p class="text-gray-400 text-sm">
+                    123 Eco-Lane, Green City, GC 10001<br>
+                    Email: info@everythingshop.com<br>
+                    Phone: +1 (555) 123-4567
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+            &copy; 2025 The Everything Shop. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+        // Global Firebase configuration and auth token provided by Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Fallback for local testing
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDUfNKlbvZb0qBOAHx6xE9tt2Ynt3Ni_WY",
+            authDomain: "the-everthing-shop.firebaseapp.com",
+            projectId: "the-everthing-shop",
+            storageBucket: "the-everthing-shop.firebasestorage.app",
+            messagingSenderId: "221853475531",
+            appId: "1:221853475531:web:b19738e10abb9c5379314e",
+            measurementId: "G-CE0PH39T4E"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let cart = []; // To store cart items from localStorage
+        const SHIPPING_COST = 5.00; // Fixed shipping cost for demo
+        const TAX_RATE = 0.05; // 5% tax rate
+        let currentUser = null; // To store the current logged-in user
+
+        // DOM Elements
+        const emptyCartCheckoutMessage = document.getElementById('empty-cart-checkout-message');
+        const checkoutContentDiv = document.getElementById('checkout-content');
+        const orderSummaryItems = document.getElementById('order-summary-items');
+        const orderSubtotalElement = document.getElementById('order-subtotal');
+        const orderShippingElement = document.getElementById('order-shipping');
+        const orderTaxElement = document.getElementById('order-tax');
+        const orderTotalElement = document.getElementById('order-total');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        const checkoutForm = document.getElementById('checkout-form');
+        const cartCountElement = document.getElementById('cart-count');
+        const cartIcon = document.getElementById('cart-icon');
+        const authLinkContainer = document.getElementById('auth-link-container'); // Dynamic auth link container
+
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long the message should be visible in milliseconds.
+         * @param {string} type - 'success' or 'error' for styling.
+         */
+        function showEphemeralMessage(message, duration = 3000, type = 'info') {
+            let messageBox = document.getElementById('ephemeral-message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'ephemeral-message-box';
+                messageBox.className = 'ephemeral-message-box'; // Apply base styles
+                document.body.appendChild(messageBox);
+            }
+
+            // Reset classes and apply type-specific styling
+            messageBox.className = 'ephemeral-message-box'; // Reset to base
+            if (type === 'success') {
+                messageBox.style.backgroundColor = 'rgba(21, 128, 61, 0.8)'; // Green-800
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = 'rgba(220, 38, 38, 0.8)'; // Red-600
+            } else {
+                messageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Default dark
+            }
+
+            messageBox.textContent = message;
+            messageBox.classList.add('visible');
+
+            setTimeout(() => {
+                messageBox.classList.remove('visible');
+                // Hide completely after transition to avoid taking up space/being focusable
+                setTimeout(() => messageBox.style.backgroundColor = '', 300); // Clear background after transition
+            }, duration);
+        }
+
+
+        /**
+         * Initializes and loads data (cart) for the page.
+         * Checks if the cart is empty and shows appropriate content.
+         */
+        async function initializeAndLoadData() {
+            loadCartFromLocalStorage();
+            if (cart.length === 0) {
+                emptyCartCheckoutMessage.classList.remove('hidden');
+                checkoutContentDiv.classList.add('hidden');
+                placeOrderBtn.disabled = true; // Disable place order if cart is empty
+            } else {
+                emptyCartCheckoutMessage.classList.add('hidden');
+                checkoutContentDiv.classList.remove('hidden');
+                placeOrderBtn.disabled = false;
+                renderOrderSummary();
+            }
+        }
+
+        /**
+         * Loads cart data from localStorage.
+         */
+        function loadCartFromLocalStorage() {
+            try {
+                const storedCart = localStorage.getItem('ecoShopCart');
+                cart = storedCart ? JSON.parse(storedCart) : [];
+                updateCartCountDisplay();
+            } catch (e) {
+                console.error("Error loading cart from local storage:", e);
+                cart = []; // Reset cart if corrupted
+            }
+        }
+
+        /**
+         * Saves cart data to localStorage.
+         */
+        function saveCartToLocalStorage() {
+            try {
+                localStorage.setItem('ecoShopCart', JSON.stringify(cart));
+            } catch (e) {
+                console.error("Error saving cart to local storage:", e);
+            }
+        }
+
+        /**
+         * Updates the cart item count displayed in the header.
+         */
+        function updateCartCountDisplay() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            if (totalItems > 0) {
+                cartCountElement.classList.remove('hidden');
+            } else {
+                cartCountElement.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Renders the order summary in the checkout section.
+         */
+        function renderOrderSummary() {
+            orderSummaryItems.innerHTML = '';
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const summaryItemHtml = `
+                    <div class="flex justify-between items-center text-gray-700 text-md">
+                        <span>${item.name} (x${item.quantity})</span>
+                        <span>GHS ${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+                orderSummaryItems.insertAdjacentHTML('beforeend', summaryItemHtml);
+            });
+
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + SHIPPING_COST + tax;
+
+            orderSubtotalElement.textContent = `GHS ${subtotal.toFixed(2)}`;
+            orderShippingElement.textContent = `GHS ${SHIPPING_COST.toFixed(2)}`;
+            orderTaxElement.textContent = `GHS ${tax.toFixed(2)}`;
+            orderTotalElement.textContent = `GHS ${total.toFixed(2)}`;
+        }
+
+        /**
+         * Saves the completed order to Firestore.
+         * @param {Object} orderData - The order details to save.
+         */
+        async function saveOrderToFirestore(orderData) {
+            if (!currentUser) {
+                console.warn("Attempted to save order without a logged-in user. Order will not be saved to Firestore.");
+                showEphemeralMessage("Order could not be saved to your history. Please log in before ordering.", 5000, 'error');
+                return;
+            }
+            try {
+                // Path: artifacts/{appId}/users/{userId}/orders/{orderDocId}
+                const ordersCollectionRef = collection(db, `artifacts/${appId}/users/${currentUser.uid}/orders`);
+                await addDoc(ordersCollectionRef, orderData);
+                console.log("Order saved to Firestore:", orderData);
+            } catch (error) {
+                console.error("Error saving order to Firestore:", error);
+                showEphemeralMessage("There was an issue saving your order history.", 5000, 'error');
+            }
+        }
+
+
+        /**
+         * Handles the form submission for placing an order.
+         * Simulates order completion, saves to Firestore, and clears the cart.
+         */
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent actual form submission
+
+            if (cart.length === 0) {
+                showEphemeralMessage("Your cart is empty. Please add items to place an order.", 3000, 'error');
+                return;
+            }
+
+            // Simple form validation check (Tailwind's required attribute handles much of this)
+            const formElements = checkoutForm.querySelectorAll('[required]');
+            let allFieldsValid = true;
+            formElements.forEach(input => {
+                if (!input.checkValidity()) {
+                    allFieldsValid = false;
+                    showEphemeralMessage(`Please fill in all required fields: ${input.labels[0].textContent}`, 5000, 'error');
+                    input.focus();
+                    return;
+                }
+            });
+
+            if (!allFieldsValid) {
+                return;
+            }
+
+            // Collect order data
+            const subtotalValue = parseFloat(orderSubtotalElement.textContent.replace('GHS ', ''));
+            const shippingValue = parseFloat(orderShippingElement.textContent.replace('GHS ', ''));
+            const taxValue = parseFloat(orderTaxElement.textContent.replace('GHS ', ''));
+            const totalValue = parseFloat(orderTotalElement.textContent.replace('GHS ', ''));
+
+            const orderDetails = {
+                orderId: `TES-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // Simple unique ID
+                date: new Date(), // Firestore Timestamp will automatically convert this
+                total: totalValue,
+                subtotal: subtotalValue,
+                shipping: shippingValue,
+                tax: taxValue,
+                status: 'Processing', // Initial status
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                customerInfo: { // Collect customer info from form for order record
+                    firstName: document.getElementById('first-name').value,
+                    lastName: document.getElementById('last-name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: {
+                        line1: document.getElementById('address-line1').value,
+                        line2: document.getElementById('address-line2').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        zipCode: document.getElementById('zip-code').value,
+                        country: document.getElementById('country').value,
+                    }
+                }
+            };
+
+            showEphemeralMessage("Placing your order...", 3000, 'info');
+
+            // Save order to Firestore
+            await saveOrderToFirestore(orderDetails);
+
+            // Clear the cart after "successful" order
+            cart = [];
+            saveCartToLocalStorage();
+            updateCartCountDisplay();
+
+            showEphemeralMessage("Order placed successfully!", 3000, 'success');
+
+            // Redirect to a confirmation page
+            setTimeout(() => {
+                window.location.href = 'orderconfirmation.html';
+            }, 1000); // Shorter delay after Firestore save
+        });
+
+        // --- Firebase Authentication Listener for Header ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user; // Set currentUser when auth state changes
+            if (user) {
+                const displayName = user.displayName || user.email;
+                authLinkContainer.innerHTML = `
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            } else {
+                authLinkContainer.innerHTML = `
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                `;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with custom token."))
+                        .catch((error) => console.error("Error signing in with custom token:", error));
+                } else {
+                    signInAnonymously(auth)
+                        .then(() => console.log("Signed in anonymously."))
+                        .catch((error) => console.error("Error signing in anonymously:", error));
+                }
+            }
+        });
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showEphemeralMessage("You have been logged out.", 3000, 'info');
+                // UI update and redirection handled by onAuthStateChanged
+            } catch (error) {
+                console.error("Logout Error:", error);
+                showEphemeralMessage("Error logging out. Please try again.", 3000, 'error');
+            }
+        }
+
+
+        // --- General Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header "Shop Now" button
+            document.querySelector('header .bg-green-600').addEventListener('click', () => {
+                window.location.href = 'productlisting.html';
+            });
+
+            // Cart icon click handler (directs to shopping cart page)
+            cartIcon.addEventListener('click', (e) => {
+                // No e.preventDefault() here, as we want the link to work
+            });
+        });
+
+        // Initialize data when the DOM is fully loaded
+        window.onload = initializeAndLoadData;
+    </script>
+</body>
+</html>

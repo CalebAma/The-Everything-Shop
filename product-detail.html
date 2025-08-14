@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - The Everything Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray for background */
+            padding-top: 72px; /* Added padding to prevent content from going under the fixed header */
+        }
+        /* Custom scrollbar for aesthetic appeal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Medium gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Darker gray on hover */
+        }
+        /* Ephemeral message box styles */
+        .ephemeral-message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1000;
+            text-wrap: balance; /* Improves text wrapping for messages */
+            max-width: 90%;
+        }
+        .ephemeral-message-box.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .star-rating .star {
+            cursor: pointer;
+            color: #cbd5e1; /* Gray star */
+            transition: color 0.2s ease-in-out;
+        }
+        .star-rating .star.selected,
+        .star-rating .star:hover,
+        .star-rating .star:hover ~ .star {
+            color: #facc15; /* Yellow star */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section (Consistent with other pages) -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592c-.512.598-1.482 1-2.592 1-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2-1.343-2-3-2z"></path>
+            </svg>
+            <a href="index.html" class="text-2xl font-bold text-gray-800">The Everything Shop</a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="hidden md:flex space-x-8">
+            <a href="index.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Home</a>
+            <a href="productlisting.html" class="text-green-700 font-bold transition duration-300">Shop</a> <!-- Keep Shop highlighted as this page is part of the shop flow -->
+            <a href="shoppingcarts.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
+            <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Checkout</a>
+            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
+            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">About Us</a>
+            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Contact</a>
+            <!-- Dynamic Account/Logout Link -->
+            <span id="auth-link-container">
+                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+            </span>
+        </nav>
+
+        <!-- Call to Action / Icons -->
+        <div class="flex items-center space-x-4">
+            <!-- Cart Icon -->
+            <a href="shoppingcarts.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </a>
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block">
+                Shop Now
+            </button>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Section: Product Details -->
+    <main class="py-16 md:py-20 px-6 md:px-8 lg:px-12">
+        <div class="container mx-auto max-w-5xl">
+            <div id="product-detail-container" class="bg-white rounded-xl shadow-lg p-8 md:p-12 mb-12">
+                <!-- Product Loading / Not Found Message -->
+                <div id="product-loading-message" class="text-center py-20 hidden">
+                    <p class="text-gray-600 text-xl">Loading product details...</p>
+                </div>
+                <div id="product-not-found-message" class="text-center py-20 hidden">
+                    <p class="text-red-500 text-xl font-semibold mb-4">Product not found.</p>
+                    <a href="productlisting.html" class="text-green-600 hover:underline">Go back to shop</a>
+                </div>
+
+                <!-- Product Display Area -->
+                <div id="product-display-area" class="grid grid-cols-1 md:grid-cols-2 gap-10 hidden">
+                    <!-- Product Image -->
+                    <div class="md:col-span-1">
+                        <img id="product-image" src="https://placehold.co/600x400/EBF3E5/4CAF50?text=Product+Image" alt="Product Image" class="w-full h-auto object-cover rounded-lg shadow-md">
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="md:col-span-1">
+                        <h1 id="product-name" class="text-4xl font-extrabold text-gray-800 mb-3">Product Name</h1>
+                        <p class="text-green-700 text-3xl font-bold mb-4">GHS <span id="product-price">0.00</span></p>
+
+                        <!-- Star Rating Display -->
+                        <div class="flex items-center mb-4">
+                            <div id="average-rating-stars" class="flex text-yellow-400 text-2xl mr-2">
+                                <!-- Stars will be dynamically generated -->
+                            </div>
+                            <span id="average-rating-value" class="text-gray-700 font-semibold text-lg">0.0</span>
+                            <span id="total-reviews-count" class="text-gray-500 text-sm ml-2">(0 Reviews)</span>
+                        </div>
+
+                        <p id="product-description" class="text-gray-700 text-lg leading-relaxed mb-6">
+                            This is a placeholder for a detailed product description. It will talk about the product's features, benefits, sustainable aspects, and usage instructions.
+                        </p>
+
+                        <div class="flex items-center space-x-4 mb-8">
+                            <label for="quantity-input" class="text-gray-700 font-semibold">Quantity:</label>
+                            <input type="number" id="quantity-input" value="1" min="1" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-green-500 focus:border-green-500">
+                            <button id="add-to-cart-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 uppercase tracking-wide">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-6 space-y-3">
+                            <p class="text-gray-700"><strong class="font-semibold">SKU:</strong> <span id="product-sku">P-000</span></p>
+                            <p class="text-gray-700"><strong class="font-semibold">Category:</strong> <span id="product-category">Eco-Friendly</span></p>
+                            <p class="text-gray-700"><strong class="font-semibold">Availability:</strong> <span id="product-availability" class="text-green-600 font-semibold">In Stock</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Reviews Section -->
+            <div id="reviews-section" class="bg-white rounded-xl shadow-lg p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Customer Reviews</h2>
+
+                <!-- Review Submission Form -->
+                <div id="review-form-container" class="border border-gray-200 rounded-lg p-6 mb-8 hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Submit Your Review</h3>
+                    <p id="review-login-prompt" class="text-gray-600 mb-4">Please <a href="authentication.html" class="text-green-600 hover:underline font-semibold">log in</a> to leave a review.</p>
+                    <form id="review-form" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-1">Your Rating:</label>
+                            <div id="rating-stars" class="star-rating flex text-3xl">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                            </div>
+                            <input type="hidden" id="review-rating" name="rating" value="0" required>
+                        </div>
+                        <div>
+                            <label for="review-comment" class="block text-gray-700 text-sm font-medium mb-1">Your Comment:</label>
+                            <textarea id="review-comment" name="comment" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="Share your thoughts about this product..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 uppercase tracking-wide">
+                            Submit Review
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Existing Reviews Display -->
+                <div id="reviews-list" class="space-y-6">
+                    <!-- Reviews will be dynamically loaded here -->
+                    <p id="no-reviews-message" class="text-center text-gray-600 py-4">No reviews yet. Be the first to share your thoughts!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section (Consistent with other pages) -->
+    <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">The Everything Shop</h3>
+                <p class="text-gray-400 text-sm">Dedicated to bringing you the best sustainable and eco-friendly products for a better world.</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
+                </ul>
+            </div>
+            <!-- Categories -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Categories</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Home & Living</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Fashion</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Beauty & Wellness</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Kids & Baby</a></li>
+                </ul>
+            </div>
+            <!-- Contact Us -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-green-300">Contact Us</h3>
+                <p class="text-gray-400 text-sm">
+                    123 Eco-Lane, Green City, GC 10001<br>
+                    Email: info@everythingshop.com<br>
+                    Phone: +1 (555) 123-4567
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+            &copy; 2025 The Everything Shop. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Global Firebase configuration and auth token provided by Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Fallback for local testing
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDUfNKlbvZb0qBOAHx6xE9tt2Ynt3Ni_WY",
+            authDomain: "the-everthing-shop.firebaseapp.com",
+            projectId: "the-everthing-shop",
+            storageBucket: "the-everthing-shop.firebasestorage.app",
+            messagingSenderId: "221853475531",
+            appId: "1:221853475531:web:b19738e10abb9c5379314e",
+            measurementId: "G-CE0PH39T4E"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let cart = []; // To store cart items from localStorage
+        let currentUser = null; // To store the current logged-in user
+
+        // Product data (simulated - in a real app, this would be fetched from a DB)
+        const allProducts = [
+            { id: 'p001', name: 'Bamboo Toothbrush Set', price: 15.00, description: 'Biodegradable toothbrushes for a sustainable smile.', sku: 'BAM-TB-001', category: 'Health & Beauty', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Bamboo+Brush' },
+            { id: 'p002', name: 'Organic Reusable Bag', price: 25.50, description: 'Strong, foldable, and stylish for your groceries. Made from 100% organic cotton.', sku: 'ORG-RB-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Reusable+Bag' },
+            { id: 'p003', name: 'Insulated Eco Bottle', price: 40.00, description: 'Keeps drinks cold for 24 hours and hot for 12 hours. Made from recycled stainless steel.', sku: 'ECO-BT-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Eco+Bottle' },
+            { id: 'p004', name: 'Zero Waste Starter Kit', price: 85.00, description: 'Everything you need to kickstart your zero-waste journey, including reusables and natural cleaning supplies.', sku: 'ZW-SK-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Zero+Waste+Kit' },
+            { id: 'p005', name: 'Natural Shampoo Bar', price: 30.00, description: 'Plastic-free, nourishing, and great for travel. Made with natural ingredients like shea butter and essential oils.', sku: 'NSB-001', category: 'Health & Beauty', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Shampoo+Bar' },
+            { id: 'p006', name: 'Beeswax Food Wraps (Set)', price: 35.00, description: 'Reusable alternative to plastic cling wrap, perfect for keeping food fresh naturally. Set of 3 assorted sizes.', sku: 'BW-FW-001', category: 'Kitchen & Dining', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Beeswax+Wraps' },
+        ];
+        let currentProduct = null; // The product currently displayed on the page
+
+        // DOM Elements
+        const cartCountElement = document.getElementById('cart-count');
+        const cartIcon = document.getElementById('cart-icon');
+        const authLinkContainer = document.getElementById('auth-link-container');
+
+        const productDetailContainer = document.getElementById('product-detail-container');
+        const productLoadingMessage = document.getElementById('product-loading-message');
+        const productNotFoundMessage = document.getElementById('product-not-found-message');
+        const productDisplayArea = document.getElementById('product-display-area');
+
+        const productImage = document.getElementById('product-image');
+        const productName = document.getElementById('product-name');
+        const productPrice = document.getElementById('product-price');
+        const productDescription = document.getElementById('product-description');
+        const productSku = document.getElementById('product-sku');
+        const productCategory = document.getElementById('product-category');
+        const productAvailability = document.getElementById('product-availability');
+        const quantityInput = document.getElementById('quantity-input');
+        const addToCartBtn = document.getElementById('add-to-cart-btn');
+
+        const reviewsSection = document.getElementById('reviews-section');
+        const reviewFormContainer = document.getElementById('review-form-container');
+        const reviewLoginFormPrompt = document.getElementById('review-login-prompt');
+        const reviewForm = document.getElementById('review-form');
+        const ratingStars = document.getElementById('rating-stars');
+        const reviewRatingInput = document.getElementById('review-rating');
+        const reviewCommentInput = document.getElementById('review-comment');
+        const reviewsList = document.getElementById('reviews-list');
+        const noReviewsMessage = document.getElementById('no-reviews-message');
+        const averageRatingStarsDisplay = document.getElementById('average-rating-stars');
+        const averageRatingValueDisplay = document.getElementById('average-rating-value');
+        const totalReviewsCountDisplay = document.getElementById('total-reviews-count');
+
+        let selectedRating = 0; // For the star rating input
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long the message should be visible in milliseconds.
+         * @param {string} type - 'success' or 'error' for styling.
+         */
+        function showEphemeralMessage(message, duration = 3000, type = 'info') {
+            let messageBox = document.getElementById('ephemeral-message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'ephemeral-message-box';
+                messageBox.className = 'ephemeral-message-box'; // Apply base styles
+                document.body.appendChild(messageBox);
+            }
+
+            // Reset classes and apply type-specific styling
+            messageBox.className = 'ephemeral-message-box'; // Reset to base
+            if (type === 'success') {
+                messageBox.style.backgroundColor = 'rgba(21, 128, 61, 0.8)'; // Green-800
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = 'rgba(220, 38, 38, 0.8)'; // Red-600
+            } else {
+                messageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Default dark
+            }
+
+            messageBox.textContent = message;
+            messageBox.classList.add('visible');
+
+            setTimeout(() => {
+                messageBox.classList.remove('visible');
+                // Hide completely after transition to avoid taking up space/being focusable
+                setTimeout(() => messageBox.style.backgroundColor = '', 300); // Clear background after transition
+            }, duration);
+        }
+
+        /**
+         * Loads cart data from localStorage.
+         */
+        function loadCartFromLocalStorage() {
+            try {
+                const storedCart = localStorage.getItem('ecoShopCart');
+                cart = storedCart ? JSON.parse(storedCart) : [];
+            } catch (e) {
+                console.error("Error loading cart from local storage:", e);
+                cart = []; // Reset cart if corrupted
+            }
+        }
+
+        /**
+         * Saves cart data to localStorage.
+         */
+        function saveCartToLocalStorage() {
+            try {
+                localStorage.setItem('ecoShopCart', JSON.stringify(cart));
+            } catch (e) {
+                console.error("Error saving cart to local storage:", e);
+            }
+        }
+
+        /**
+         * Updates the cart item count displayed in the header.
+         */
+        function updateCartCountDisplay() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            if (totalItems > 0) {
+                cartCountElement.classList.remove('hidden');
+            } else {
+                cartCountElement.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Adds a product to the cart.
+         * @param {object} product - The product object to add.
+         * @param {number} quantity - The quantity to add.
+         */
+        function addToCart(product, quantity) {
+            const existingItemIndex = cart.findIndex(item => item.id === product.id);
+
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += quantity;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, quantity: quantity });
+            }
+
+            saveCartToLocalStorage();
+            updateCartCountDisplay();
+            showEphemeralMessage(`${quantity} x ${product.name} added to cart!`, 3000, 'success');
+        }
+
+        /**
+         * Fetches and displays product details based on URL ID.
+         */
+        async function loadProductDetails() {
+            productLoadingMessage.classList.remove('hidden');
+            productDisplayArea.classList.add('hidden');
+            productNotFoundMessage.classList.add('hidden');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                productLoadingMessage.classList.add('hidden');
+                productNotFoundMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Simulate fetching product data (replace with actual Firestore/DB fetch)
+            currentProduct = allProducts.find(p => p.id === productId);
+
+            if (currentProduct) {
+                productImage.src = currentProduct.imageUrl;
+                productName.textContent = currentProduct.name;
+                productPrice.textContent = currentProduct.price.toFixed(2);
+                productDescription.textContent = currentProduct.description;
+                productSku.textContent = currentProduct.sku;
+                productCategory.textContent = currentProduct.category;
+                productAvailability.textContent = "In Stock"; // Assume in stock for demo
+
+                productLoadingMessage.classList.add('hidden');
+                productDisplayArea.classList.remove('hidden');
+
+                // After product details loaded, load reviews
+                await loadProductReviews(productId);
+            } else {
+                productLoadingMessage.classList.add('hidden');
+                productNotFoundMessage.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Loads reviews for the current product from Firestore.
+         * @param {string} productId - The ID of the product.
+         */
+        async function loadProductReviews(productId) {
+            reviewsList.innerHTML = ''; // Clear existing reviews
+            noReviewsMessage.classList.remove('hidden'); // Show no reviews message by default
+
+            try {
+                // Path: products/{productId}/reviews/{reviewId}
+                const reviewsRef = collection(db, `products/${productId}/reviews`);
+                // Fetch reviews, ordered by timestamp descending for latest first
+                const q = query(reviewsRef, orderBy('timestamp', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                let totalRating = 0;
+                let reviewCount = 0;
+
+                if (!querySnapshot.empty) {
+                    noReviewsMessage.classList.add('hidden'); // Hide if reviews exist
+                    querySnapshot.forEach(docSnap => {
+                        const review = docSnap.data();
+                        totalRating += review.rating;
+                        reviewCount++;
+                        const reviewHtml = `
+                            <div class="border-b border-gray-200 pb-4 mb-4">
+                                <div class="flex items-center mb-2">
+                                    <span class="font-semibold text-gray-800 mr-2">${review.userName || 'Anonymous'}</span>
+                                    <div class="flex text-yellow-400">
+                                        ${'<span class="text-xl">&#9733;</span>'.repeat(review.rating)}
+                                        ${'<span class="text-xl text-gray-300">&#9733;</span>'.repeat(5 - review.rating)}
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 mb-2">${review.comment}</p>
+                                <p class="text-gray-500 text-sm">${review.timestamp ? new Date(review.timestamp.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                        `;
+                        reviewsList.insertAdjacentHTML('beforeend', reviewHtml);
+                    });
+                }
+
+                // Update average rating display
+                const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : '0.0';
+                averageRatingValueDisplay.textContent = averageRating;
+                totalReviewsCountDisplay.textContent = `(${reviewCount} Reviews)`;
+
+                averageRatingStarsDisplay.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const starSpan = document.createElement('span');
+                    starSpan.className = 'text-xl';
+                    if (i <= Math.round(parseFloat(averageRating))) {
+                        starSpan.classList.add('text-yellow-400');
+                    } else {
+                        starSpan.classList.add('text-gray-300');
+                    }
+                    starSpan.innerHTML = '&#9733;';
+                    averageRatingStarsDisplay.appendChild(starSpan);
+                }
+
+
+            } catch (error) {
+                console.error("Error loading product reviews:", error);
+                showEphemeralMessage("Could not load reviews.", 3000, 'error');
+            }
+        }
+
+        /**
+         * Sets up the star rating interaction.
+         */
+        function setupStarRating() {
+            const stars = ratingStars.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    selectedRating = parseInt(star.dataset.value);
+                    reviewRatingInput.value = selectedRating;
+                    highlightStars(selectedRating);
+                });
+
+                star.addEventListener('mouseover', () => {
+                    highlightStars(parseInt(star.dataset.value), true);
+                });
+
+                star.addEventListener('mouseout', () => {
+                    highlightStars(selectedRating); // Revert to selected rating on mouse out
+                });
+            });
+        }
+
+        /**
+         * Highlights stars based on a given rating.
+         * @param {number} rating - The number of stars to highlight.
+         * @param {boolean} hover - True if highlighting for hover effect.
+         */
+        function highlightStars(rating, hover = false) {
+            const stars = ratingStars.querySelectorAll('.star');
+            stars.forEach(star => {
+                const starValue = parseInt(star.dataset.value);
+                if (starValue <= rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+                // Ensure base gray color is always there for unselected
+                star.style.color = star.classList.contains('selected') ? '#facc15' : '#cbd5e1';
+            });
+        }
+
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showEphemeralMessage("You have been logged out.", 3000, 'info');
+                // UI update and redirection handled by onAuthStateChanged
+            } catch (error) {
+                console.error("Logout Error:", error);
+                showEphemeralMessage("Error logging out. Please try again.", 3000, 'error');
+            }
+        }
+
+        // --- Firebase Authentication Listener for Header & Review Form ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user; // Update currentUser variable
+            if (user) {
+                const displayName = user.displayName || user.email;
+                authLinkContainer.innerHTML = `
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+                // Show review form for logged-in users
+                reviewLoginFormPrompt.classList.add('hidden');
+                reviewForm.classList.remove('hidden');
+                reviewFormContainer.classList.remove('hidden');
+            } else {
+                authLinkContainer.innerHTML = `
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                `;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with custom token."))
+                        .catch((error) => console.error("Error signing in with custom token:", error));
+                } else {
+                    signInAnonymously(auth)
+                        .then(() => console.log("Signed in anonymously."))
+                        .catch((error) => console.error("Error signing in anonymously:", error));
+                }
+
+                // Hide review form for logged-out users
+                reviewLoginFormPrompt.classList.remove('hidden');
+                reviewForm.classList.add('hidden');
+                reviewFormContainer.classList.remove('hidden'); // Keep container visible to show login prompt
+            }
+        });
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCartFromLocalStorage();
+            updateCartCountDisplay();
+
+            // Set up star rating interaction
+            setupStarRating();
+
+            // Handle Add to Cart button click
+            addToCartBtn.addEventListener('click', () => {
+                if (currentProduct) {
+                    const quantity = parseInt(quantityInput.value);
+                    if (quantity > 0) {
+                        addToCart(currentProduct, quantity);
+                    } else {
+                        showEphemeralMessage("Please enter a valid quantity.", 3000, 'error');
+                    }
+                } else {
+                    showEphemeralMessage("Product data not loaded yet.", 3000, 'error');
+                }
+            });
+
+            // Handle Review form submission
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (!currentUser) {
+                    showEphemeralMessage("You must be logged in to submit a review.", 3000, 'error');
+                    return;
+                }
+                if (!currentProduct) {
+                    showEphemeralMessage("Cannot submit review: Product not loaded.", 3000, 'error');
+                    return;
+                }
+
+                const rating = parseInt(reviewRatingInput.value);
+                const comment = reviewCommentInput.value.trim();
+
+                if (rating === 0) {
+                    showEphemeralMessage("Please select a star rating.", 3000, 'error');
+                    return;
+                }
+                if (!comment) {
+                    showEphemeralMessage("Please write a comment for your review.", 3000, 'error');
+                    return;
+                }
+
+                try {
+                    // Save review to Firestore
+                    const reviewsCollectionRef = collection(db, `products/${currentProduct.id}/reviews`);
+                    await addDoc(reviewsCollectionRef, {
+                        userId: currentUser.uid,
+                        userName: currentUser.displayName || currentUser.email.split('@')[0], // Use display name or part of email
+                        rating: rating,
+                        comment: comment,
+                        timestamp: serverTimestamp() // Use Firestore's server timestamp
+                    });
+
+                    showEphemeralMessage("Review submitted successfully!", 3000, 'success');
+                    reviewForm.reset();
+                    selectedRating = 0; // Reset star selection
+                    highlightStars(0);
+                    await loadProductReviews(currentProduct.id); // Reload reviews to show the new one
+                } catch (error) {
+                    console.error("Error submitting review:", error);
+                    showEphemeralMessage("Failed to submit review. Please try again.", 5000, 'error');
+                }
+            });
+
+
+            // Header "Shop Now" button
+            document.querySelector('header .bg-green-600').addEventListener('click', () => {
+                window.location.href = 'productlisting.html';
+            });
+
+            // Cart icon click handler
+            cartIcon.addEventListener('click', (e) => {
+                // No e.preventDefault() here, as we want the link to work
+            });
+        });
+
+        // Load product details and then reviews when the window finishes loading
+        window.onload = async () => {
+            updateCartCountDisplay();
+            await loadProductDetails();
+        };
+    </script>
+</body>
+</html>
