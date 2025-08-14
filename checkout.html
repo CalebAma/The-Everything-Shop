@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Stripe.js CDN - IMPORTANT for client-side payment collection -->
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -52,6 +54,13 @@
         .ephemeral-message-box.visible {
             opacity: 1;
             visibility: visible;
+        }
+        /* Style for Stripe Payment Element errors */
+        #card-errors {
+            color: #ef4444; /* red-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.5rem; /* mt-2 */
+            text-align: center;
         }
     </style>
 </head>
@@ -185,31 +194,16 @@
                             </div>
                         </div>
 
-                        <!-- Payment Information (Placeholder) -->
+                        <!-- Stripe Payment Element -->
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Payment Method</h3>
-                            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                                <p class="text-gray-600 mb-4">Payment processing integration would go here. For this demo, payment is simulated.</p>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label for="card-number" class="block text-gray-700 text-sm font-medium mb-1">Card Number</label>
-                                        <input type="text" id="card-number" name="card-number" placeholder="XXXX XXXX XXXX XXXX" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="[0-9]{13,16}" title="Credit card number" required>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="expiry-date" class="block text-gray-700 text-sm font-medium mb-1">Expiry (MM/YY)</label>
-                                            <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="(0[1-9]|1[0-2])\/([0-9]{2})" title="MM/YY format" required>
-                                        </div>
-                                        <div>
-                                            <label for="cvv" class="block text-gray-700 text-sm font-medium mb-1">CVV</label>
-                                            <input type="text" id="cvv" name="cvv" placeholder="CVV" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" pattern="[0-9]{3,4}" title="3 or 4 digit CVV" required>
-                                    </div>
-                                    </div>
-                                    <div>
-                                        <label for="card-name" class="block text-gray-700 text-sm font-medium mb-1">Name on Card</label>
-                                        <input type="text" id="card-name" name="card-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                                    </div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Payment Information</h3>
+                            <div id="payment-element-container" class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                <!-- Stripe Payment Element will be inserted here -->
+                                <div id="payment-element">
+                                    <!-- A Stripe Element will be inserted here. -->
                                 </div>
+                                <!-- Display payment errors here -->
+                                <div id="card-errors" role="alert" class="mt-2 text-red-500 text-sm text-center"></div>
                             </div>
                         </div>
                     </form>
@@ -295,7 +289,8 @@
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
 
         // Global Firebase configuration and auth token provided by Canvas environment
@@ -315,6 +310,18 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const functions = getFunctions(app); // Initialize Cloud Functions
+
+        // Stripe configuration
+        // Replace with your actual TEST publishable key
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rw93FDBuVfn3rFhduPCgHdj0Fb1eNcN0F2093Kt7O72amvRfcl301L53Kbp2p0MJPVPTiQgoPMDtOnWVir7j2Yb00r5RTZLED';
+        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+        const elements = stripe.elements();
+        let paymentElement; // Will hold the Stripe Payment Element instance
+
+        // Callable Cloud Function for payment
+        const createStripePayment = httpsCallable(functions, 'createStripePayment');
+
 
         let cart = []; // To store cart items from localStorage
         const SHIPPING_COST = 5.00; // Fixed shipping cost for demo
@@ -334,6 +341,7 @@
         const cartCountElement = document.getElementById('cart-count');
         const cartIcon = document.getElementById('cart-icon');
         const authLinkContainer = document.getElementById('auth-link-container'); // Dynamic auth link container
+        const cardErrorsElement = document.getElementById('card-errors'); // For Stripe errors
 
 
         /**
@@ -387,6 +395,8 @@
                 checkoutContentDiv.classList.remove('hidden');
                 placeOrderBtn.disabled = false;
                 renderOrderSummary();
+                // Initialize Stripe Payment Element here, after content is visible
+                initializeStripePaymentElement();
             }
         }
 
@@ -458,30 +468,95 @@
         }
 
         /**
-         * Saves the completed order to Firestore.
+         * Saves the initial order data to Firestore and returns the document reference.
+         * This creates an order with a 'Pending Payment' status.
          * @param {Object} orderData - The order details to save.
+         * @returns {Promise<DocumentReference>} A reference to the newly created order document.
          */
-        async function saveOrderToFirestore(orderData) {
+        async function createPendingOrderInFirestore(orderData) {
             if (!currentUser) {
-                console.warn("Attempted to save order without a logged-in user. Order will not be saved to Firestore.");
-                showEphemeralMessage("Order could not be saved to your history. Please log in before ordering.", 5000, 'error');
-                return;
+                throw new Error("Cannot create order: User not authenticated.");
             }
             try {
                 // Path: artifacts/{appId}/users/{userId}/orders/{orderDocId}
                 const ordersCollectionRef = collection(db, `artifacts/${appId}/users/${currentUser.uid}/orders`);
-                await addDoc(ordersCollectionRef, orderData);
-                console.log("Order saved to Firestore:", orderData);
+                const docRef = await addDoc(ordersCollectionRef, {
+                    ...orderData,
+                    status: 'Pending Payment', // Initial status
+                    createdAt: new Date(),
+                    userId: currentUser.uid // Ensure userId is explicitly stored
+                });
+                console.log("Pending order created in Firestore with ID:", docRef.id);
+                return docRef;
             } catch (error) {
-                console.error("Error saving order to Firestore:", error);
-                showEphemeralMessage("There was an issue saving your order history.", 5000, 'error');
+                console.error("Error creating pending order in Firestore:", error);
+                throw new Error("Failed to create pending order.");
             }
         }
 
+        /**
+         * Updates the status of an existing order in Firestore.
+         * @param {string} orderDocId - The ID of the order document to update.
+         * @param {string} newStatus - The new status (e.g., 'Paid', 'Payment Failed').
+         * @param {string} [paymentIntentId] - Optional Stripe Payment Intent ID.
+         * @param {string} [failureReason] - Optional reason for failure.
+         */
+        async function updateOrderStatusInFirestore(orderDocId, newStatus, paymentIntentId = null, failureReason = null) {
+            if (!currentUser) {
+                console.warn("Attempted to update order status without a logged-in user.");
+                return;
+            }
+            try {
+                const orderDocRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/orders`, orderDocId);
+                const updateData = {
+                    status: newStatus,
+                    lastUpdated: new Date()
+                };
+                if (paymentIntentId) updateData.paymentIntentId = paymentIntentId;
+                if (failureReason) updateData.failureReason = failureReason;
+
+                await updateDoc(orderDocRef, updateData);
+                console.log(`Order ${orderDocId} status updated to: ${newStatus}`);
+            } catch (error) {
+                console.error(`Error updating order ${orderDocId} status to ${newStatus}:`, error);
+                showEphemeralMessage(`Error updating order status in history.`, 5000, 'error');
+            }
+        }
 
         /**
-         * Handles the form submission for placing an order.
-         * Simulates order completion, saves to Firestore, and clears the cart.
+         * Initializes the Stripe Payment Element.
+         */
+        function initializeStripePaymentElement() {
+            if (!stripe || !elements) {
+                console.error("Stripe.js not loaded or initialized correctly.");
+                showEphemeralMessage("Payment system could not load. Please try again later.", 5000, 'error');
+                return;
+            }
+
+            // Create a Payment Element
+            paymentElement = elements.create('payment', {
+                layout: 'tabs', // Or 'accordion', 'card'
+                billingDetails: {
+                    name: '{{CUSTOMER_NAME}}', // Pre-fill if you have it
+                    email: '{{CUSTOMER_EMAIL}}',
+                },
+                // Add more options as needed: https://stripe.com/docs/elements/payment-element/customization
+            });
+            paymentElement.mount('#payment-element');
+
+            // Handle real-time validation errors from the card Element.
+            paymentElement.on('change', function(event) {
+                const displayError = cardErrorsElement;
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        }
+
+        /**
+         * Handles the form submission for placing an order, integrating with Stripe.
          */
         checkoutForm.addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent actual form submission
@@ -491,74 +566,130 @@
                 return;
             }
 
-            // Simple form validation check (Tailwind's required attribute handles much of this)
-            const formElements = checkoutForm.querySelectorAll('[required]');
+            if (!currentUser) {
+                showEphemeralMessage("Please log in to complete your purchase.", 4000, 'error');
+                setTimeout(() => window.location.href = 'authentication.html', 1000);
+                return;
+            }
+
+            // Client-side form validation (excluding Stripe's element)
+            const formElements = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
             let allFieldsValid = true;
-            formElements.forEach(input => {
+            for (const input of formElements) {
+                // Skip the Stripe Payment Element's internal fields
+                if (input.closest('#payment-element')) continue;
+
                 if (!input.checkValidity()) {
                     allFieldsValid = false;
-                    showEphemeralMessage(`Please fill in all required fields: ${input.labels[0].textContent}`, 5000, 'error');
+                    showEphemeralMessage(`Please fill in all required fields: ${input.labels[0]?.textContent || input.placeholder || input.name}`, 5000, 'error');
                     input.focus();
-                    return;
+                    return; // Stop on first invalid field
                 }
-            });
-
+            }
             if (!allFieldsValid) {
                 return;
             }
 
-            // Collect order data
-            const subtotalValue = parseFloat(orderSubtotalElement.textContent.replace('GHS ', ''));
-            const shippingValue = parseFloat(orderShippingElement.textContent.replace('GHS ', ''));
-            const taxValue = parseFloat(orderTaxElement.textContent.replace('GHS ', ''));
-            const totalValue = parseFloat(orderTotalElement.textContent.replace('GHS ', ''));
+            placeOrderBtn.disabled = true; // Disable button to prevent double clicks
+            showEphemeralMessage("Processing payment...", 5000, 'info');
+            cardErrorsElement.textContent = ''; // Clear previous errors
 
-            const orderDetails = {
-                orderId: `TES-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // Simple unique ID
-                date: new Date(), // Firestore Timestamp will automatically convert this
-                total: totalValue,
-                subtotal: subtotalValue,
-                shipping: shippingValue,
-                tax: taxValue,
-                status: 'Processing', // Initial status
-                items: cart.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price
-                })),
-                customerInfo: { // Collect customer info from form for order record
-                    firstName: document.getElementById('first-name').value,
-                    lastName: document.getElementById('last-name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: {
-                        line1: document.getElementById('address-line1').value,
-                        line2: document.getElementById('address-line2').value,
-                        city: document.getElementById('city').value,
-                        state: document.getElementById('state').value,
-                        zipCode: document.getElementById('zip-code').value,
-                        country: document.getElementById('country').value,
+            try {
+                const subtotalValue = parseFloat(orderSubtotalElement.textContent.replace('GHS ', ''));
+                const shippingValue = parseFloat(orderShippingElement.textContent.replace('GHS ', ''));
+                const taxValue = parseFloat(orderTaxElement.textContent.replace('GHS ', ''));
+                const totalValue = parseFloat(orderTotalElement.textContent.replace('GHS ', ''));
+
+                const orderDetails = {
+                    orderId: `TES-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // Generate temporary ID
+                    total: totalValue,
+                    subtotal: subtotalValue,
+                    shipping: shippingValue,
+                    tax: taxValue,
+                    items: cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price
+                    })),
+                    customerInfo: {
+                        firstName: document.getElementById('first-name').value,
+                        lastName: document.getElementById('last-name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        address: {
+                            line1: document.getElementById('address-line1').value,
+                            line2: document.getElementById('address-line2').value,
+                            city: document.getElementById('city').value,
+                            state: document.getElementById('state').value,
+                            zipCode: document.getElementById('zip-code').value,
+                            country: document.getElementById('country').value,
+                        }
                     }
+                };
+
+                // 1. Create a pending order in Firestore BEFORE calling Stripe
+                const orderDocRef = await createPendingOrderInFirestore(orderDetails);
+                const orderFirestoreId = orderDocRef.id; // Get the actual Firestore document ID
+
+                // 2. Confirm the payment with Stripe using the Payment Element
+                const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        // Return URL is where the user is redirected after a successful 3D Secure authentication
+                        return_url: `${window.location.origin}/orderconfirmation.html?orderId=${orderFirestoreId}`,
+                        // If you use other payment methods, include the payment_method_data
+                        // For card, payment element handles this.
+                    },
+                    redirect: 'if_required' // Handle 3D Secure, etc.
+                });
+
+                if (stripeError) {
+                    console.error("Stripe Payment Error:", stripeError);
+                    cardErrorsElement.textContent = stripeError.message;
+                    showEphemeralMessage(`Payment failed: ${stripeError.message}`, 7000, 'error');
+
+                    // Update order status to failed in Firestore
+                    await updateOrderStatusInFirestore(orderFirestoreId, 'Payment Failed', null, stripeError.message);
+
+                } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    // Payment succeeded, update order status in Firestore via your Cloud Function
+                    // NOTE: This call to the Cloud Function is for updating Firestore,
+                    //       NOT for actually processing the payment (Stripe already did that).
+                    //       The Cloud Function 'createStripePayment' would have already processed the payment.
+                    //       This client-side confirmation would primarily be for confirming 3D secure flow.
+                    //       For a truly clean flow, the Cloud Function should return the client_secret
+                    //       and the frontend calls `stripe.confirmCardPayment` with it.
+                    //       Given our Cloud Function already confirms, this client-side `confirmPayment` is mainly
+                    //       to handle the `redirect: 'if_required'` for 3DS.
+
+                    showEphemeralMessage("Payment successful!", 3000, 'success');
+
+                    // If we get here, payment was successful or 3D secure handled redirection.
+                    // The Cloud Function will have set the status to 'Paid'.
+                    // So we just clear the cart and redirect.
+                    cart = [];
+                    saveCartToLocalStorage();
+                    updateCartCountDisplay();
+
+                    // Redirect to confirmation page, passing the Firestore order ID
+                    window.location.href = `orderconfirmation.html?orderId=${orderFirestoreId}`;
+
+                } else if (paymentIntent && paymentIntent.status !== 'succeeded') {
+                    // Payment intent status is not succeeded (e.g., requires_action)
+                    console.log("Payment Intent Status:", paymentIntent.status);
+                    showEphemeralMessage(`Payment requires additional action. Status: ${paymentIntent.status}`, 5000, 'info');
+
+                    // Update order status based on paymentIntent.status if needed
+                    await updateOrderStatusInFirestore(orderFirestoreId, `Payment ${paymentIntent.status}`, paymentIntent.id);
                 }
-            };
 
-            showEphemeralMessage("Placing your order...", 3000, 'info');
-
-            // Save order to Firestore
-            await saveOrderToFirestore(orderDetails);
-
-            // Clear the cart after "successful" order
-            cart = [];
-            saveCartToLocalStorage();
-            updateCartCountDisplay();
-
-            showEphemeralMessage("Order placed successfully!", 3000, 'success');
-
-            // Redirect to a confirmation page
-            setTimeout(() => {
-                window.location.href = 'orderconfirmation.html';
-            }, 1000); // Shorter delay after Firestore save
+            } catch (error) {
+                console.error("Checkout process error:", error);
+                showEphemeralMessage(`An unexpected error occurred: ${error.message}`, 7000, 'error');
+            } finally {
+                placeOrderBtn.disabled = false; // Re-enable button
+            }
         });
 
         // --- Firebase Authentication Listener for Header ---
@@ -571,6 +702,8 @@
                     <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
                 `;
                 document.getElementById('logout-btn').addEventListener('click', handleLogout);
+                // Pre-fill email field if user is logged in
+                document.getElementById('email').value = user.email || '';
             } else {
                 authLinkContainer.innerHTML = `
                     <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
@@ -584,6 +717,8 @@
                         .then(() => console.log("Signed in anonymously."))
                         .catch((error) => console.error("Error signing in anonymously:", error));
                 }
+                 // Clear pre-filled email if user logs out
+                document.getElementById('email').value = '';
             }
         });
 

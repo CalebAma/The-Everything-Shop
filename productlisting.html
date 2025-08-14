@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop All Products - The Everything Shop</title>
+    
+    <!-- Favicon Link: This will display an image in the browser tab -->
+    <link rel="icon" type="image/png" href="images/carts.png">
+    <!-- You can replace the href with the path to your actual logo image (e.g., /images/favicon.png) -->
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
@@ -85,7 +90,7 @@
         <!-- Call to Action / Icons -->
         <div class="flex items-center space-x-4">
             <!-- Cart Icon -->
-            <a href="shoppingcart.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+            <a href="shoppingcarts.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
@@ -109,8 +114,9 @@
             <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 text-center mb-12">Our Eco-Friendly Products</h1>
 
             <div class="flex flex-col md:flex-row gap-8 mb-12">
-                <!-- Sidebar Filters (Placeholder) -->
-                <aside class="w-full md:w-1/4 bg-white rounded-xl shadow-lg p-6 h-fit sticky top-24">
+                <!-- Sidebar Filters -->
+                <!-- Changed 'sticky top-24' to 'md:sticky md:top-24' to make it non-sticky on mobile -->
+                <aside class="w-full md:w-1/4 bg-white rounded-xl shadow-lg p-6 h-fit md:sticky md:top-24">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Filter Products</h2>
                     <div class="space-y-6">
                         <!-- Category Filter -->
@@ -168,7 +174,7 @@
                         </div>
                         <!-- Product Card 2 -->
                         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Reusable+Bag" alt="Reusable Shopping Bag" class="w-full h-56 object-cover">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Reusable+Bag" alt="Organic Reusable Bag" class="w-full h-56 object-cover">
                             <div class="p-6">
                                 <h3 class="text-xl font-semibold text-gray-800 mb-2">Organic Reusable Bag</h3>
                                 <p class="text-gray-600 text-sm mb-4">Strong, foldable, and stylish for your groceries.</p>
@@ -180,7 +186,7 @@
                         </div>
                         <!-- Product Card 3 -->
                         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Eco+Bottle" alt="Eco-Friendly Water Bottle" class="w-full h-56 object-cover">
+                            <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Eco+Bottle" alt="Insulated Eco Bottle" class="w-full h-56 object-cover">
                             <div class="p-6">
                                 <h3 class="text-xl font-semibold text-gray-800 mb-2">Insulated Eco Bottle</h3>
                                 <p class="text-gray-600 text-sm mb-4">Keeps drinks cold/hot. Made from recycled materials.</p>
