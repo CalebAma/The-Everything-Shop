@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - The Everything Shop</title>
+    <title>The Everything Shop - All Products</title>
+    <!-- Favicon Link: This will display an image in the browser tab -->
+    <link rel="icon" type="image/png" href="https://placehold.co/32x32/10B981/ffffff?text=ES">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
@@ -31,6 +33,18 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b; /* Darker gray on hover */
         }
+        /* Basic spinner for loading state */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #10B981; /* Green color for spinner */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         /* Ephemeral message box styles */
         .ephemeral-message-box {
             position: fixed;
@@ -53,21 +67,12 @@
             opacity: 1;
             visibility: visible;
         }
-        .star-rating .star {
-            cursor: pointer;
-            color: #cbd5e1; /* Gray star */
-            transition: color 0.2s ease-in-out;
-        }
-        .star-rating .star.selected,
-        .star-rating .star:hover,
-        .star-rating .star:hover ~ .star {
-            color: #facc15; /* Yellow star */
-        }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Header Section (Consistent with other pages) -->
+    <!-- Header Section (Consistent with Landing Page) -->
+    <!-- Added fixed, top-0, and w-full to make the header static -->
     <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
@@ -80,7 +85,7 @@
         <!-- Navigation Menu -->
         <nav class="hidden md:flex space-x-8">
             <a href="index.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Home</a>
-            <a href="productlisting.html" class="text-green-700 font-bold transition duration-300">Shop</a> <!-- Keep Shop highlighted as this page is part of the shop flow -->
+            <a href="productlisting.html" class="text-green-700 font-bold transition duration-300">Shop</a> <!-- Highlight current page -->
             <a href="shoppingcarts.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
             <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Checkout</a>
             <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
@@ -113,101 +118,74 @@
         </div>
     </header>
 
-    <!-- Main Content Section: Product Details -->
+    <!-- Main Content Section: Product Listing -->
     <main class="py-16 md:py-20 px-6 md:px-8 lg:px-12">
-        <div class="container mx-auto max-w-5xl">
-            <div id="product-detail-container" class="bg-white rounded-xl shadow-lg p-8 md:p-12 mb-12">
-                <!-- Product Loading / Not Found Message -->
-                <div id="product-loading-message" class="text-center py-20 hidden">
-                    <p class="text-gray-600 text-xl">Loading product details...</p>
+        <div class="container mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 text-center mb-12">Our Sustainable Collection</h1>
+
+            <!-- Filter, Sort, and Search Section -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-10 space-y-4 sm:space-y-0">
+                <!-- Search Input -->
+                <div class="flex items-center space-x-3 mb-4 sm:mb-0 w-full sm:w-auto">
+                    <label for="search-input" class="sr-only">Search products</label>
+                    <input type="text" id="search-input" placeholder="Search products..." class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 w-full">
                 </div>
-                <div id="product-not-found-message" class="text-center py-20 hidden">
-                    <p class="text-red-500 text-xl font-semibold mb-4">Product not found.</p>
-                    <a href="productlisting.html" class="text-green-600 hover:underline">Go back to shop</a>
+
+                <div class="flex items-center space-x-3">
+                    <label for="sort-by" class="text-gray-700 font-medium">Sort by:</label>
+                    <select id="sort-by" class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        <option value="recommended">Recommended</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="new-arrivals">New Arrivals</option>
+                    </select>
                 </div>
-
-                <!-- Product Display Area -->
-                <div id="product-display-area" class="grid grid-cols-1 md:grid-cols-2 gap-10 hidden">
-                    <!-- Product Image -->
-                    <div class="md:col-span-1">
-                        <img id="product-image" src="https://placehold.co/600x400/EBF3E5/4CAF50?text=Product+Image" alt="Product Image" class="w-full h-auto object-cover rounded-lg shadow-md">
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="md:col-span-1">
-                        <h1 id="product-name" class="text-4xl font-extrabold text-gray-800 mb-3">Product Name</h1>
-                        <p class="text-green-700 text-3xl font-bold mb-4">GHS <span id="product-price">0.00</span></p>
-
-                        <!-- Star Rating Display -->
-                        <div class="flex items-center mb-4">
-                            <div id="average-rating-stars" class="flex text-yellow-400 text-2xl mr-2">
-                                <!-- Stars will be dynamically generated -->
-                            </div>
-                            <span id="average-rating-value" class="text-gray-700 font-semibold text-lg">0.0</span>
-                            <span id="total-reviews-count" class="text-gray-500 text-sm ml-2">(0 Reviews)</span>
-                        </div>
-
-                        <p id="product-description" class="text-gray-700 text-lg leading-relaxed mb-6">
-                            This is a placeholder for a detailed product description. It will talk about the product's features, benefits, sustainable aspects, and usage instructions.
-                        </p>
-
-                        <div class="flex items-center space-x-4 mb-8">
-                            <label for="quantity-input" class="text-gray-700 font-semibold">Quantity:</label>
-                            <input type="number" id="quantity-input" value="1" min="1" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-green-500 focus:border-green-500">
-                            <button id="add-to-cart-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 uppercase tracking-wide">
-                                Add to Cart
-                            </button>
-                        </div>
-
-                        <div class="border-t border-gray-200 pt-6 space-y-3">
-                            <p class="text-gray-700"><strong class="font-semibold">SKU:</strong> <span id="product-sku">P-000</span></p>
-                            <p class="text-gray-700"><strong class="font-semibold">Category:</strong> <span id="product-category">Eco-Friendly</span></p>
-                            <p class="text-gray-700"><strong class="font-semibold">Availability:</strong> <span id="product-availability" class="text-green-600 font-semibold">In Stock</span></p>
-                        </div>
-                    </div>
+                <div class="flex items-center space-x-3">
+                    <label for="filter-category" class="text-gray-700 font-medium">Category:</label>
+                    <select id="filter-category" class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        <option value="all">All Categories</option>
+                        <option value="home">Home & Living</option>
+                        <option value="personal-care">Personal Care</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="kitchen">Kitchen</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="apparel">Apparel</option>
+                        <option value="kids-baby">Kids & Baby</option>
+                        <option value="outdoor">Outdoor</option>
+                        <option value="books">Books & Media</option>
+                    </select>
+                </div>
+                <div id="product-count" class="text-gray-600">
+                    Loading products...
                 </div>
             </div>
 
-            <!-- Customer Reviews Section -->
-            <div id="reviews-section" class="bg-white rounded-xl shadow-lg p-8 md:p-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Customer Reviews</h2>
-
-                <!-- Review Submission Form -->
-                <div id="review-form-container" class="border border-gray-200 rounded-lg p-6 mb-8 hidden">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Submit Your Review</h3>
-                    <p id="review-login-prompt" class="text-gray-600 mb-4">Please <a href="authentication.html" class="text-green-600 hover:underline font-semibold">log in</a> to leave a review.</p>
-                    <form id="review-form" class="space-y-4 hidden">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-1">Your Rating:</label>
-                            <div id="rating-stars" class="star-rating flex text-3xl">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
-                            </div>
-                            <input type="hidden" id="review-rating" name="rating" value="0" required>
-                        </div>
-                        <div>
-                            <label for="review-comment" class="block text-gray-700 text-sm font-medium mb-1">Your Comment:</label>
-                            <textarea id="review-comment" name="comment" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="Share your thoughts about this product..." required></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 uppercase tracking-wide">
-                            Submit Review
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Existing Reviews Display -->
-                <div id="reviews-list" class="space-y-6">
-                    <!-- Reviews will be dynamically loaded here -->
-                    <p id="no-reviews-message" class="text-center text-gray-600 py-4">No reviews yet. Be the first to share your thoughts!</p>
-                </div>
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="flex justify-center items-center py-10 hidden">
+                <div class="spinner"></div>
             </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <!-- Products will be dynamically loaded here by JavaScript -->
+            </div>
+
+            <!-- No Products Found Message -->
+            <div id="no-products-message" class="hidden text-center text-gray-600 text-lg mt-10">
+                No products found matching your criteria.
+            </div>
+
+            <!-- Pagination (will be dynamically updated) -->
+            <div id="pagination" class="flex justify-center mt-12 hidden">
+                <nav class="flex space-x-2" aria-label="Pagination">
+                    <!-- Pagination links will be generated here -->
+                </nav>
+            </div>
+
         </div>
     </main>
 
-    <!-- Footer Section (Consistent with other pages) -->
+    <!-- Footer Section (Consistent with Landing Page) -->
     <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
         <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- About Us -->
@@ -219,7 +197,7 @@
             <div>
                 <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
@@ -251,10 +229,9 @@
     </footer>
 
     <script type="module">
-        // Firebase imports
+        // Firebase imports (already present, adding for completeness in this snippet)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Global Firebase configuration and auth token provided by Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Fallback for local testing
@@ -267,95 +244,355 @@
             appId: "1:221853475531:web:b19738e10abb9c5379314e",
             measurementId: "G-CE0PH39T4E"
         };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? initialAuthToken : null;
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
 
-        let cart = []; // To store cart items from localStorage
-        let currentUser = null; // To store the current logged-in user
 
-        // Product data (simulated - in a real app, this would be fetched from a DB)
-        const allProducts = [
-            { id: 'p001', name: 'Bamboo Toothbrush Set', price: 15.00, description: 'Biodegradable toothbrushes for a sustainable smile.', sku: 'BAM-TB-001', category: 'Health & Beauty', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Bamboo+Brush' },
-            { id: 'p002', name: 'Organic Reusable Bag', price: 25.50, description: 'Strong, foldable, and stylish for your groceries. Made from 100% organic cotton.', sku: 'ORG-RB-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Reusable+Bag' },
-            { id: 'p003', name: 'Insulated Eco Bottle', price: 40.00, description: 'Keeps drinks cold for 24 hours and hot for 12 hours. Made from recycled stainless steel.', sku: 'ECO-BT-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Eco+Bottle' },
-            { id: 'p004', name: 'Zero Waste Starter Kit', price: 85.00, description: 'Everything you need to kickstart your zero-waste journey, including reusables and natural cleaning supplies.', sku: 'ZW-SK-001', category: 'Home & Living', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Zero+Waste+Kit' },
-            { id: 'p005', name: 'Natural Shampoo Bar', price: 30.00, description: 'Plastic-free, nourishing, and great for travel. Made with natural ingredients like shea butter and essential oils.', sku: 'NSB-001', category: 'Health & Beauty', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Shampoo+Bar' },
-            { id: 'p006', name: 'Beeswax Food Wraps (Set)', price: 35.00, description: 'Reusable alternative to plastic cling wrap, perfect for keeping food fresh naturally. Set of 3 assorted sizes.', sku: 'BW-FW-001', category: 'Kitchen & Dining', imageUrl: 'https://placehold.co/600x400/F0FDF4/10B981?text=Beeswax+Wraps' },
-        ];
-        let currentProduct = null; // The product currently displayed on the page
+        let allProducts = []; // Stores all mock products locally
+        let displayedProducts = []; // Stores products currently displayed after filters/sort
+        const productsPerPage = 8; // Number of products to display per page
+        let currentPage = 1; // Current page number
+        let cart = []; // Stores items in the cart
 
-        // DOM Elements
+        // DOM elements
+        const productsGrid = document.getElementById('products-grid');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const noProductsMessage = document.getElementById('no-products-message');
+        const productCountElement = document.getElementById('product-count');
+        const sortBySelect = document.getElementById('sort-by');
+        const filterByCategorySelect = document.getElementById('filter-category');
+        const paginationContainer = document.getElementById('pagination');
+        const searchInput = document.getElementById('search-input');
         const cartCountElement = document.getElementById('cart-count');
         const cartIcon = document.getElementById('cart-icon');
         const authLinkContainer = document.getElementById('auth-link-container');
 
-        const productDetailContainer = document.getElementById('product-detail-container');
-        const productLoadingMessage = document.getElementById('product-loading-message');
-        const productNotFoundMessage = document.getElementById('product-not-found-message');
-        const productDisplayArea = document.getElementById('product-display-area');
-
-        const productImage = document.getElementById('product-image');
-        const productName = document.getElementById('product-name');
-        const productPrice = document.getElementById('product-price');
-        const productDescription = document.getElementById('product-description');
-        const productSku = document.getElementById('product-sku');
-        const productCategory = document.getElementById('product-category');
-        const productAvailability = document.getElementById('product-availability');
-        const quantityInput = document.getElementById('quantity-input');
-        const addToCartBtn = document.getElementById('add-to-cart-btn');
-
-        const reviewsSection = document.getElementById('reviews-section');
-        const reviewFormContainer = document.getElementById('review-form-container');
-        const reviewLoginFormPrompt = document.getElementById('review-login-prompt');
-        const reviewForm = document.getElementById('review-form');
-        const ratingStars = document.getElementById('rating-stars');
-        const reviewRatingInput = document.getElementById('review-rating');
-        const reviewCommentInput = document.getElementById('review-comment');
-        const reviewsList = document.getElementById('reviews-list');
-        const noReviewsMessage = document.getElementById('no-reviews-message');
-        const averageRatingStarsDisplay = document.getElementById('average-rating-stars');
-        const averageRatingValueDisplay = document.getElementById('average-rating-value');
-        const totalReviewsCountDisplay = document.getElementById('total-reviews-count');
-
-        let selectedRating = 0; // For the star rating input
 
         /**
          * Displays a temporary message to the user.
          * @param {string} message - The message to display.
          * @param {number} duration - How long the message should be visible in milliseconds.
-         * @param {string} type - 'success' or 'error' for styling.
          */
-        function showEphemeralMessage(message, duration = 3000, type = 'info') {
+        function showEphemeralMessage(message, duration = 3000) {
             let messageBox = document.getElementById('ephemeral-message-box');
             if (!messageBox) {
                 messageBox = document.createElement('div');
                 messageBox.id = 'ephemeral-message-box';
-                messageBox.className = 'ephemeral-message-box'; // Apply base styles
+                messageBox.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transition-opacity duration-300 z-50 text-center';
                 document.body.appendChild(messageBox);
             }
-
-            // Reset classes and apply type-specific styling
-            messageBox.className = 'ephemeral-message-box'; // Reset to base
-            if (type === 'success') {
-                messageBox.style.backgroundColor = 'rgba(21, 128, 61, 0.8)'; // Green-800
-            } else if (type === 'error') {
-                messageBox.style.backgroundColor = 'rgba(220, 38, 38, 0.8)'; // Red-600
-            } else {
-                messageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Default dark
-            }
-
             messageBox.textContent = message;
-            messageBox.classList.add('visible');
+            messageBox.classList.remove('opacity-0', 'hidden');
+            messageBox.classList.add('opacity-100');
 
             setTimeout(() => {
-                messageBox.classList.remove('visible');
+                messageBox.classList.remove('opacity-100');
+                messageBox.classList.add('opacity-0');
                 // Hide completely after transition to avoid taking up space/being focusable
-                setTimeout(() => messageBox.style.backgroundColor = '', 300); // Clear background after transition
+                setTimeout(() => messageBox.classList.add('hidden'), 300);
             }, duration);
+        }
+
+        /**
+         * Initializes and loads data (mock products, cart) for the page.
+         */
+        async function initializeAndLoadData() {
+            // Define mock products directly in the code - with real image URLs!
+            allProducts = [
+                {
+                    id: 'prod001', name: "Bamboo Toothbrush Set", description: "Biodegradable and eco-friendly alternative for oral hygiene.", price: 9.99, imageUrl: "https://m.media-amazon.com/images/I/718y0k1+rSL._AC_UF890,1000_QL80_.jpg", category: "personal-care", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 30)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod002', name: "Natural Solid Shampoo Bar", description: "Plastic-free and nourishing for all hair types.", price: 12.50, imageUrl: "https://www.ethique.com/cdn/shop/files/Haircare-Bar-Shampoo-Bar-Heali-Kiwi-Ethique.png?v=1716327092&width=1600", category: "personal-care", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 60)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod003', name: "Organic Produce Bags (Set of 3)", description: "Reduce plastic waste with these versatile mesh bags.", price: 15.00, imageUrl: "https://organicbasics.com/cdn/shop/files/organic-basics-mesh-produce-bag-3-pack-sand_800x.jpg?v=1708453488", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 90)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod004', name: "Countertop Compost Bin", description: "Stylish and compact, perfect for indoor food waste collection.", price: 35.99, imageUrl: "https://zerowastestore.com/cdn/shop/files/compost-bin-white-composter-6-5-l_720x.jpg?v=1704221193", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 120)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod005', name: "Portable Solar Power Bank", description: "Charge your devices using clean solar energy on the go.", price: 49.95, imageUrl: "https://www.powerextra.com/cdn/shop/products/PE-PB026-B_1.jpg?v=1661332731&width=1445", category: "electronics", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 15)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod006', name: "Eco-Friendly Cleaning Kit", description: "Non-toxic, plant-based cleaning solutions for a healthy home.", price: 29.00, imageUrl: "https://thrivemarket.com/static/images/cat_assets/category_page_hero_eco_friendly_cleaning.webp", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 45)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod007', name: "Insulated Reusable Coffee Cup", description: "Enjoy your hot beverages sustainably on the go.", price: 16.75, imageUrl: "https://assets.weareevergreen.com/images/products/reusable-coffee-cups/travel-mug-12oz-grey-frank-green.webp?auto=format%2Ccompress&fit=fillmax&w=1200", category: "kitchen", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 70)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod008', name: "Beeswax Food Wraps (Mixed Sizes)", description: "Natural, reusable, and biodegradable food storage.", price: 22.00, imageUrl: "https://cdn.shopify.com/s/files/1/0088/8774/2498/files/beeswax-food-wraps-assorted-3-pack.png?v=1686733221", category: "kitchen", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 100)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod009', name: "Plantable Seed Pencils (Pack of 5)", description: "Once used, plant them to grow herbs or flowers.", price: 11.50, imageUrl: "https://www.sproutworld.com/app/uploads/2021/04/original_pencils_5_pack_black_square-800x800.jpg", category: "accessories", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 20)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod010', name: "Reusable Make-up Remover Pads", description: "Soft, washable pads for an eco-friendly beauty routine.", price: 14.99, imageUrl: "https://cdn.shopify.com/s/files/1/0073/3565/5608/products/OrganicCottonRounds-10pack.jpg?v=1602737603", category: "personal-care", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 50)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod011', name: "Stainless Steel Lunch Box", description: "Durable and leak-proof, perfect for school or work.", price: 28.00, imageUrl: "https://www.onyxcontainers.com/cdn/shop/products/lunchbox_main_1024x1024.jpg?v=1571271109", category: "kitchen", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 80)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod012', name: "Biodegradable Phone Case", description: "Protect your phone and the planet with this compostable case.", price: 24.00, imageUrl: "https://m.media-amazon.com/images/I/71i-y6s-R8L._AC_UF890,1000_QL80_.jpg", category: "electronics", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 110)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod013', name: "Recycled Cotton T-Shirt", description: "Comfortable and stylish t-shirt made from 100% recycled cotton.", price: 35.00, imageUrl: "https://www.tshirt-supplier.com/cdn/shop/products/recycled-cotton-t-shirt-womens_1024x1024.jpg?v=1603750849", category: "apparel", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 10)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod014', name: "Upcycled Denim Tote Bag", description: "Unique and durable tote bag crafted from repurposed denim.", price: 45.00, imageUrl: "https://i.etsystatic.com/22900760/r/il/64c39f/3697960301/il_fullxfull.3697960301_dky0.jpg", category: "apparel", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 25)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod015', name: "Organic Baby Onesie", description: "Soft and safe for your little one, made from GOTS certified organic cotton.", price: 20.00, imageUrl: "https://www.happiestbaby.com/cdn/shop/files/sleepea-organic-cotton-swaddle-sky-star_grande.jpg?v=1680556108", category: "kids-baby", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 40)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod016', name: "Wooden Building Blocks (Set)", description: "Classic, durable, and non-toxic wooden blocks for creative play.", price: 30.00, imageUrl: "https://cdn.shopify.com/s/files/1/0080/6360/4042/products/wooden-building-blocks-2.jpg?v=1600371694", category: "kids-baby", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 55)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod017', name: "Collapsible Camping Spork", description: "Lightweight and reusable spork for your outdoor adventures.", price: 8.00, imageUrl: "https://m.media-amazon.com/images/I/71T090i51nL._AC_UF890,1000_QL80_.jpg", category: "outdoor", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 75)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod018', name: "Biodegradable Sunscreen Stick", description: "Reef-safe and eco-friendly sun protection for your outdoor activities.", price: 18.00, imageUrl: "https://attitudeliving.com/cdn/shop/products/Sunly_Sunscreen_Stick_SPF30_Tropical_Leaves_600x600_crop_center.png?v=1658140409", category: "personal-care", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 85)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod019', name: "Ebook: Sustainable Living Guide", description: "A comprehensive guide to living a more eco-conscious life.", price: 9.99, imageUrl: "https://m.media-amazon.com/images/I/51-mQcK+t+L._SL500_AA300_.jpg", category: "books", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 5)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod020', name: "Reusable Notebook (Erasable)", description: "Write, scan, erase, and reuse this innovative notebook.", price: 25.00, imageUrl: "https://m.media-amazon.com/images/I/71u9yH0jS-L.jpg", category: "accessories", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 95)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod021', name: "Hemp Backpack", description: "Durable and stylish backpack made from sustainable hemp fibers.", price: 60.00, imageUrl: "https://www.etsy.com/img/share/listing/717897257/il_fullxfull.12345.2452292305_41a1.jpg", category: "apparel", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 105)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod022', name: "Eco-Friendly Yoga Mat", description: "Non-toxic and biodegradable yoga mat for your practice.", price: 55.00, imageUrl: "https://completeunityyoga.com/cdn/shop/products/yoga-mat-eco-green-yoga.jpg?v=1678880496", category: "personal-care", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 115)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod023', name: "Water Filter Pitcher", description: "Reduce plastic bottle waste with this advanced water filter system.", price: 40.00, imageUrl: "https://m.media-amazon.com/images/I/71y7-074+CL._AC_UF890,1000_QL80_.jpg", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 130)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod024', name: "Smart Home Energy Monitor", description: "Track and reduce your household energy consumption.", price: 75.00, imageUrl: "https://www.currys.co.uk/images/products/6500/65005884_2086_M_Feature.jpg", category: "electronics", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 140)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod025', name: "Recycled Glass Art Piece", description: "Beautiful and unique art made from repurposed glass.", price: 120.00, imageUrl: "https://www.thisiscolossal.com/wp-content/uploads/2016/06/jason-teague-1.jpg", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 150)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod026', name: "Solar-Powered Garden Lights (Set of 4)", description: "Illuminate your garden sustainably with these elegant lights.", price: 49.00, imageUrl: "https://www.ikea.com/us/en/images/products/solvinden-led-solar-powered-string-light-outdoor-30-smart-lighting-white__1077595_pe857187_s5.jpg?f=s", category: "outdoor", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 160)).toISOString(), isFeatured: true
+                },
+                {
+                    id: 'prod027', name: "Stainless Steel Straws (Pack of 4)", description: "Reusable and eco-friendly alternative to plastic straws.", price: 10.00, imageUrl: "https://m.media-amazon.com/images/I/61N+E2hF33L._AC_UF890,1000_QL80_.jpg", category: "kitchen", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 170)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod028', name: "Biodegradable Pet Waste Bags (Roll)", description: "Compostable bags for responsible pet waste disposal.", price: 8.50, imageUrl: "https://www.greenpoopbag.co.uk/cdn/shop/products/green-poop-bags-with-handles.jpg?v=1647466144", category: "home", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 180)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod029', name: "Recycled Paper Journal", description: "Eco-friendly journal with unbleached, recycled paper.", price: 15.00, imageUrl: "https://www.etsy.com/img/share/listing/1324021200/il_fullxfull.12345.4124045398_e0a1.jpg", category: "books", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 190)).toISOString(), isFeatured: false
+                },
+                {
+                    id: 'prod030', name: "Wooden Toy Car Set", description: "Safe, non-toxic, and durable wooden toy cars for kids.", price: 28.00, imageUrl: "https://m.media-amazon.com/images/I/81+XF4Q0pL._AC_UF890,1000_QL80_.jpg", category: "kids-baby", created_at: new Date(Date.now() - (Math.random() * 1000 * 60 * 60 * 24 * 200)).toISOString(), isFeatured: true
+                }
+            ];
+
+            loadCartFromLocalStorage(); // Load cart from local storage
+            applyFiltersAndSort(); // Apply initial filters/sort and render products
+        }
+
+        /**
+         * Renders product cards into the grid.
+         * @param {Array} productsToRender - The array of products to display.
+         */
+        function renderProducts(productsToRender) {
+            productsGrid.innerHTML = ''; // Clear previous products
+            if (productsToRender.length === 0) {
+                noProductsMessage.classList.remove('hidden');
+                productCountElement.textContent = '0 products found.';
+                paginationContainer.classList.add('hidden');
+                return;
+            } else {
+                noProductsMessage.classList.add('hidden');
+            }
+
+            // Calculate start and end index for pagination
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const productsForPage = productsToRender.slice(startIndex, endIndex);
+
+            productsForPage.forEach(product => {
+                const productCard = `
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300 flex flex-col overflow-hidden cursor-pointer" data-product-id="${product.id}">
+                        <img src="${product.imageUrl || 'https://placehold.co/400x300/F0F8F0/4CAF50?text=No+Image'}" alt="${product.name}" class="w-full h-48 object-cover rounded-t-xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/F0F8F0/4CAF50?text=No+Image';">
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">${product.name}</h3>
+                                <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+                                <span class="text-green-700 text-2xl font-bold">GHS ${product.price ? product.price.toFixed(2) : 'N/A'}</span>
+                                <button class="add-to-cart-btn bg-green-100 text-green-700 hover:bg-green-200 py-2 px-4 rounded-full text-sm font-medium transition duration-300" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productsGrid.insertAdjacentHTML('beforeend', productCard);
+            });
+
+            // Update product count display
+            productCountElement.textContent = `${productsToRender.length} products found.`;
+            setupPagination(productsToRender.length);
+            addEventListenersToProductCards();
+            addEventListenersToAddToCartButtons();
+        }
+
+        /**
+         * Applies current filters, search, and sort order to allProducts and updates the display.
+         */
+        function applyFiltersAndSort() {
+            let filtered = [...allProducts]; // Start with a copy of all products
+
+            // Apply search filter
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm) {
+                filtered = filtered.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    (product.category && product.category.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Apply category filter
+            const selectedCategory = filterByCategorySelect.value;
+            if (selectedCategory !== 'all') {
+                filtered = filtered.filter(product => product.category === selectedCategory);
+            }
+
+            // Apply sorting
+            const sortBy = sortBySelect.value;
+            if (sortBy === 'price-asc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-desc') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (sortBy === 'new-arrivals') {
+                // Sort by created_at timestamp for new arrivals (descending)
+                filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            }
+            // 'recommended' doesn't require specific sorting here, maintains original order or default
+
+            displayedProducts = filtered;
+            currentPage = 1; // Reset to first page after applying filters/sort
+            renderProducts(displayedProducts);
+        }
+
+        /**
+         * Sets up pagination links based on the total number of products.
+         * @param {number} totalProducts - Total number of products after filtering.
+         */
+        function setupPagination(totalProducts) {
+            const totalPages = Math.ceil(totalProducts / productsPerPage);
+            const navElement = paginationContainer.querySelector('nav');
+            navElement.innerHTML = ''; // Clear existing pagination
+
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                return;
+            } else {
+                paginationContainer.classList.remove('hidden');
+            }
+
+            // Previous button
+            const prevButton = document.createElement('a');
+            prevButton.href = "#";
+            prevButton.textContent = "Previous";
+            prevButton.classList.add('px-4', 'py-2', 'text-gray-500', 'bg-white', 'rounded-lg', 'shadow-md', 'hover:bg-gray-100');
+            if (currentPage === 1) {
+                prevButton.classList.add('opacity-50', 'pointer-events-none');
+            }
+            prevButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderProducts(displayedProducts);
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                }
+            });
+            navElement.appendChild(prevButton);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = "#";
+                pageLink.textContent = i;
+                pageLink.classList.add('px-4', 'py-2', 'rounded-lg', 'shadow-md');
+                if (i === currentPage) {
+                    pageLink.classList.add('text-white', 'bg-green-600');
+                    pageLink.classList.remove('text-gray-700', 'bg-white', 'hover:bg-gray-100');
+                } else {
+                    pageLink.classList.add('text-gray-700', 'bg-white', 'hover:bg-gray-100');
+                }
+                pageLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderProducts(displayedProducts);
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                });
+                navElement.appendChild(pageLink);
+            }
+
+            // Next button
+            const nextButton = document.createElement('a');
+            nextButton.href = "#";
+            nextButton.textContent = "Next";
+            nextButton.classList.add('px-4', 'py-2', 'text-gray-500', 'bg-white', 'rounded-lg', 'shadow-md', 'hover:bg-gray-100');
+            if (currentPage === totalPages) {
+                nextButton.classList.add('opacity-50', 'pointer-events-none');
+            }
+            nextButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderProducts(displayedProducts);
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                }
+            });
+            navElement.appendChild(nextButton);
+        }
+
+        /**
+         * Adds event listeners to product cards for navigation to a product detail page.
+         */
+        function addEventListenersToProductCards() {
+            document.querySelectorAll('#products-grid > div[data-product-id]').forEach(card => {
+                card.addEventListener('click', function(event) {
+                    // Prevent click on 'Add to Cart' button from triggering card click
+                    if (!event.target.closest('.add-to-cart-btn')) {
+                        const productId = this.dataset.productId;
+                        console.log(`Navigating to product detail for ID: ${productId}`);
+                        // In a real application, you would navigate to product-detail.html with the product ID
+                        window.location.href = `product-detail.html?id=${productId}`;
+                    }
+                });
+            });
+        }
+
+        /**
+         * Adds event listeners to 'Add to Cart' buttons.
+         */
+        function addEventListenersToAddToCartButtons() {
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Stop event bubbling to the product card
+                    const productId = this.dataset.productId;
+                    const productName = this.dataset.productName;
+                    // Find the product in allProducts to get its price
+                    const product = allProducts.find(p => p.id === productId);
+                    if (product) {
+                        addToCart(productId, productName, product.price);
+                    } else {
+                        console.error("Product not found for adding to cart:", productId);
+                        showEphemeralMessage("Error: Could not add product to cart.", 4000);
+                    }
+                });
+            });
         }
 
         /**
@@ -365,6 +602,7 @@
             try {
                 const storedCart = localStorage.getItem('ecoShopCart');
                 cart = storedCart ? JSON.parse(storedCart) : [];
+                updateCartCountDisplay();
             } catch (e) {
                 console.error("Error loading cart from local storage:", e);
                 cart = []; // Reset cart if corrupted
@@ -396,171 +634,48 @@
         }
 
         /**
-         * Adds a product to the cart.
-         * @param {object} product - The product object to add.
-         * @param {number} quantity - The quantity to add.
+         * Adds a product to the cart or increments its quantity.
+         * @param {string} productId - The ID of the product to add.
+         * @param {string} productName - The name of the product.
+         * @param {number} productPrice - The price of the product.
          */
-        function addToCart(product, quantity) {
-            const existingItemIndex = cart.findIndex(item => item.id === product.id);
-
+        function addToCart(productId, productName, productPrice) {
+            const existingItemIndex = cart.findIndex(item => item.id === productId);
             if (existingItemIndex > -1) {
-                cart[existingItemIndex].quantity += quantity;
+                cart[existingItemIndex].quantity++;
             } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, quantity: quantity });
+                cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
             }
-
             saveCartToLocalStorage();
             updateCartCountDisplay();
-            showEphemeralMessage(`${quantity} x ${product.name} added to cart!`, 3000, 'success');
+            showEphemeralMessage(`Added "${productName}" to cart!`);
+            console.log("Current Cart:", cart); // For debugging
         }
 
-        /**
-         * Fetches and displays product details based on URL ID.
-         */
-        async function loadProductDetails() {
-            productLoadingMessage.classList.remove('hidden');
-            productDisplayArea.classList.add('hidden');
-            productNotFoundMessage.classList.add('hidden');
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-
-            if (!productId) {
-                productLoadingMessage.classList.add('hidden');
-                productNotFoundMessage.classList.remove('hidden');
-                return;
-            }
-
-            // Simulate fetching product data (replace with actual Firestore/DB fetch)
-            currentProduct = allProducts.find(p => p.id === productId);
-
-            if (currentProduct) {
-                productImage.src = currentProduct.imageUrl;
-                productName.textContent = currentProduct.name;
-                productPrice.textContent = currentProduct.price.toFixed(2);
-                productDescription.textContent = currentProduct.description;
-                productSku.textContent = currentProduct.sku;
-                productCategory.textContent = currentProduct.category;
-                productAvailability.textContent = "In Stock"; // Assume in stock for demo
-
-                productLoadingMessage.classList.add('hidden');
-                productDisplayArea.classList.remove('hidden');
-
-                // After product details loaded, load reviews
-                await loadProductReviews(productId);
+        // --- Firebase Authentication Listener for Header ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const displayName = user.displayName || user.email;
+                authLinkContainer.innerHTML = `
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
             } else {
-                productLoadingMessage.classList.add('hidden');
-                productNotFoundMessage.classList.remove('hidden');
-            }
-        }
-
-        /**
-         * Loads reviews for the current product from Firestore.
-         * @param {string} productId - The ID of the product.
-         */
-        async function loadProductReviews(productId) {
-            reviewsList.innerHTML = ''; // Clear existing reviews
-            noReviewsMessage.classList.remove('hidden'); // Show no reviews message by default
-
-            try {
-                // Path: products/{productId}/reviews/{reviewId}
-                const reviewsRef = collection(db, `products/${productId}/reviews`);
-                // Fetch reviews, ordered by timestamp descending for latest first
-                const q = query(reviewsRef, orderBy('timestamp', 'desc'));
-                const querySnapshot = await getDocs(q);
-
-                let totalRating = 0;
-                let reviewCount = 0;
-
-                if (!querySnapshot.empty) {
-                    noReviewsMessage.classList.add('hidden'); // Hide if reviews exist
-                    querySnapshot.forEach(docSnap => {
-                        const review = docSnap.data();
-                        totalRating += review.rating;
-                        reviewCount++;
-                        const reviewHtml = `
-                            <div class="border-b border-gray-200 pb-4 mb-4">
-                                <div class="flex items-center mb-2">
-                                    <span class="font-semibold text-gray-800 mr-2">${review.userName || 'Anonymous'}</span>
-                                    <div class="flex text-yellow-400">
-                                        ${'<span class="text-xl">&#9733;</span>'.repeat(review.rating)}
-                                        ${'<span class="text-xl text-gray-300">&#9733;</span>'.repeat(5 - review.rating)}
-                                    </div>
-                                </div>
-                                <p class="text-gray-700 mb-2">${review.comment}</p>
-                                <p class="text-gray-500 text-sm">${review.timestamp ? new Date(review.timestamp.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
-                            </div>
-                        `;
-                        reviewsList.insertAdjacentHTML('beforeend', reviewHtml);
-                    });
-                }
-
-                // Update average rating display
-                const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : '0.0';
-                averageRatingValueDisplay.textContent = averageRating;
-                totalReviewsCountDisplay.textContent = `(${reviewCount} Reviews)`;
-
-                averageRatingStarsDisplay.innerHTML = '';
-                for (let i = 1; i <= 5; i++) {
-                    const starSpan = document.createElement('span');
-                    starSpan.className = 'text-xl';
-                    if (i <= Math.round(parseFloat(averageRating))) {
-                        starSpan.classList.add('text-yellow-400');
-                    } else {
-                        starSpan.classList.add('text-gray-300');
-                    }
-                    starSpan.innerHTML = '&#9733;';
-                    averageRatingStarsDisplay.appendChild(starSpan);
-                }
-
-
-            } catch (error) {
-                console.error("Error loading product reviews:", error);
-                showEphemeralMessage("Could not load reviews.", 3000, 'error');
-            }
-        }
-
-        /**
-         * Sets up the star rating interaction.
-         */
-        function setupStarRating() {
-            const stars = ratingStars.querySelectorAll('.star');
-            stars.forEach(star => {
-                star.addEventListener('click', () => {
-                    selectedRating = parseInt(star.dataset.value);
-                    reviewRatingInput.value = selectedRating;
-                    highlightStars(selectedRating);
-                });
-
-                star.addEventListener('mouseover', () => {
-                    highlightStars(parseInt(star.dataset.value), true);
-                });
-
-                star.addEventListener('mouseout', () => {
-                    highlightStars(selectedRating); // Revert to selected rating on mouse out
-                });
-            });
-        }
-
-        /**
-         * Highlights stars based on a given rating.
-         * @param {number} rating - The number of stars to highlight.
-         * @param {boolean} hover - True if highlighting for hover effect.
-         */
-        function highlightStars(rating, hover = false) {
-            const stars = ratingStars.querySelectorAll('.star');
-            stars.forEach(star => {
-                const starValue = parseInt(star.dataset.value);
-                if (starValue <= rating) {
-                    star.classList.add('selected');
+                authLinkContainer.innerHTML = `
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                `;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with custom token."))
+                        .catch((error) => console.error("Error signing in with custom token:", error));
                 } else {
-                    star.classList.remove('selected');
+                    signInAnonymously(auth)
+                        .then(() => console.log("Signed in anonymously."))
+                        .catch((error) => console.error("Error signing in anonymously:", error));
                 }
-                // Ensure base gray color is always there for unselected
-                star.style.color = star.classList.contains('selected') ? '#facc15' : '#cbd5e1';
-            });
-        }
-
+            }
+        });
 
         /**
          * Handles user logout.
@@ -576,128 +691,20 @@
             }
         }
 
-        // --- Firebase Authentication Listener for Header & Review Form ---
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user; // Update currentUser variable
-            if (user) {
-                const displayName = user.displayName || user.email;
-                authLinkContainer.innerHTML = `
-                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
-                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
-                `;
-                document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-                // Show review form for logged-in users
-                reviewLoginFormPrompt.classList.add('hidden');
-                reviewForm.classList.remove('hidden');
-                reviewFormContainer.classList.remove('hidden');
-            } else {
-                authLinkContainer.innerHTML = `
-                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
-                `;
-                if (initialAuthToken) {
-                    signInWithCustomToken(auth, initialAuthToken)
-                        .then(() => console.log("Signed in with custom token."))
-                        .catch((error) => console.error("Error signing in with custom token:", error));
-                } else {
-                    signInAnonymously(auth)
-                        .then(() => console.log("Signed in anonymously."))
-                        .catch((error) => console.error("Error signing in anonymously:", error));
-                }
+        // Event listeners for sort, filter, and search changes
+        sortBySelect.addEventListener('change', applyFiltersAndSort);
+        filterByCategorySelect.addEventListener('change', applyFiltersAndSort);
+        searchInput.addEventListener('input', applyFiltersAndSort); // Listen for real-time search input
 
-                // Hide review form for logged-out users
-                reviewLoginFormPrompt.classList.remove('hidden');
-                reviewForm.classList.add('hidden');
-                reviewFormContainer.classList.remove('hidden'); // Keep container visible to show login prompt
-            }
+        // Event listener for the cart icon (now links to cart page)
+        cartIcon.addEventListener('click', (e) => {
+            // No e.preventDefault() here, as we want the link to work
+            // If you wanted to do something *before* navigating, you could add it here
         });
 
-        // --- Event Listeners and Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCartFromLocalStorage();
-            updateCartCountDisplay();
-
-            // Set up star rating interaction
-            setupStarRating();
-
-            // Handle Add to Cart button click
-            addToCartBtn.addEventListener('click', () => {
-                if (currentProduct) {
-                    const quantity = parseInt(quantityInput.value);
-                    if (quantity > 0) {
-                        addToCart(currentProduct, quantity);
-                    } else {
-                        showEphemeralMessage("Please enter a valid quantity.", 3000, 'error');
-                    }
-                } else {
-                    showEphemeralMessage("Product data not loaded yet.", 3000, 'error');
-                }
-            });
-
-            // Handle Review form submission
-            reviewForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                if (!currentUser) {
-                    showEphemeralMessage("You must be logged in to submit a review.", 3000, 'error');
-                    return;
-                }
-                if (!currentProduct) {
-                    showEphemeralMessage("Cannot submit review: Product not loaded.", 3000, 'error');
-                    return;
-                }
-
-                const rating = parseInt(reviewRatingInput.value);
-                const comment = reviewCommentInput.value.trim();
-
-                if (rating === 0) {
-                    showEphemeralMessage("Please select a star rating.", 3000, 'error');
-                    return;
-                }
-                if (!comment) {
-                    showEphemeralMessage("Please write a comment for your review.", 3000, 'error');
-                    return;
-                }
-
-                try {
-                    // Save review to Firestore
-                    const reviewsCollectionRef = collection(db, `products/${currentProduct.id}/reviews`);
-                    await addDoc(reviewsCollectionRef, {
-                        userId: currentUser.uid,
-                        userName: currentUser.displayName || currentUser.email.split('@')[0], // Use display name or part of email
-                        rating: rating,
-                        comment: comment,
-                        timestamp: serverTimestamp() // Use Firestore's server timestamp
-                    });
-
-                    showEphemeralMessage("Review submitted successfully!", 3000, 'success');
-                    reviewForm.reset();
-                    selectedRating = 0; // Reset star selection
-                    highlightStars(0);
-                    await loadProductReviews(currentProduct.id); // Reload reviews to show the new one
-                } catch (error) {
-                    console.error("Error submitting review:", error);
-                    showEphemeralMessage("Failed to submit review. Please try again.", 5000, 'error');
-                }
-            });
-
-
-            // Header "Shop Now" button
-            document.querySelector('header .bg-green-600').addEventListener('click', () => {
-                window.location.href = 'productlisting.html';
-            });
-
-            // Cart icon click handler
-            cartIcon.addEventListener('click', (e) => {
-                // No e.preventDefault() here, as we want the link to work
-            });
-        });
-
-        // Load product details and then reviews when the window finishes loading
-        window.onload = async () => {
-            updateCartCountDisplay();
-            await loadProductDetails();
-        };
+        // Initialize data when the DOM is fully loaded
+        window.onload = initializeAndLoadData;
     </script>
 </body>
 </html>
