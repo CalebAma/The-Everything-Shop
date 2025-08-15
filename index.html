@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Everything Shop - Eco-Friendly Products</title>
-
-
-    <!-- Favicon Link: This will display an image in the browser tab -->
-    <link rel="icon" type="image/png" href="images/carts.png">
-    <!-- You can replace the href with the path to your actual logo image (e.g., /images/favicon.png) -->
-
-    
+    <!-- Favicon Link -->
+    <link rel="icon" type="image/png" href="https://placehold.co/32x32/10B981/ffffff?text=ES">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
@@ -60,49 +55,62 @@
             opacity: 1;
             visibility: visible;
         }
+        /* Ensure links/buttons are good touch targets on mobile */
+        .mobile-touch-target {
+            padding: 10px 15px; /* Minimum padding for easy tapping */
+            border-radius: 8px; /* Consistent rounded corners */
+        }
+        /* Specific styling for mobile menu button for better tap area */
+        .md\:hidden.mobile-menu-button {
+            padding: 8px; /* Increase tap area */
+            border-radius: 50%; /* Make it round */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Header Section (Consistent with other pages) -->
+    <!-- Header Section (Consistent across all pages) -->
     <header class="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12 flex justify-between items-center rounded-b-xl fixed top-0 w-full z-50">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592c-.512.598-1.482 1-2.592 1-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2-1.343-2-3-2z"></path>
             </svg>
-            <a href="index.html" class="text-2xl font-bold text-gray-800">The Everything Shop</a>
+            <a href="index.html" class="text-2xl font-bold text-gray-800 mobile-touch-target">The Everything Shop</a>
         </div>
 
         <!-- Navigation Menu -->
         <nav class="hidden md:flex space-x-8">
-            <a href="index.html" class="text-green-700 font-bold transition duration-300">Home</a> <!-- Highlight current page -->
-            <a href="productlisting.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Shop</a>
-            <a href="shoppingcart.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Cart</a>
-            <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Checkout</a>
-            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Confirmation</a>
-            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">About Us</a>
-            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Contact</a>
+            <a href="index.html" class="text-green-700 font-bold transition duration-300 mobile-touch-target">Home</a> <!-- Highlight current page -->
+            <a href="productlisting.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Shop</a>
+            <a href="shoppingcarts.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Cart</a>
+            <a href="checkout.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Checkout</a>
+            <a href="orderconfirmation.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Confirmation</a>
+            <a href="aboutus.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">About Us</a>
+            <a href="contact.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Contact</a>
             <!-- Dynamic Account/Logout Link -->
             <span id="auth-link-container">
-                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target" id="account-link">Account</a>
             </span>
         </nav>
 
         <!-- Call to Action / Icons -->
         <div class="flex items-center space-x-4">
             <!-- Cart Icon -->
-            <a href="shoppingcart.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300">
+            <a href="shoppingcarts.html" id="cart-icon" class="text-gray-600 hover:text-green-700 relative transition duration-300 mobile-touch-target">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.53 1.705H17m-7 0a2 2 0 11-4 0 2 2 0 014 0zm7 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
                 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
             </a>
-            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block">
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 hidden sm:block mobile-touch-target">
                 Shop Now
             </button>
-            <!-- Mobile Menu Button -->
-            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none">
+            <!-- Mobile Menu Button - Ensure it's a good touch target -->
+            <button class="md:hidden text-gray-600 hover:text-green-700 focus:outline-none mobile-menu-button">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
@@ -111,120 +119,87 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-green-500 to-green-700 text-white py-20 md:py-32 relative overflow-hidden rounded-b-3xl shadow-xl">
-        <div class="container mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row items-center justify-between">
-            <div class="text-center md:text-left md:w-1/2 mb-10 md:mb-0">
-                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">
-                    Sustainable Choices, <br class="hidden md:inline"> Everyday Living.
+    <section class="relative bg-gradient-to-br from-green-500 to-green-700 text-white py-20 px-6 md:px-8 lg:px-12 rounded-b-3xl shadow-xl flex items-center justify-center">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between text-center md:text-left space-y-8 md:space-y-0 md:space-x-12">
+            <!-- Hero Content -->
+            <div class="md:w-1/2">
+                <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-4">
+                    Sustainable Choices for a Better Tomorrow
                 </h1>
-                <p class="text-xl md:text-2xl mb-8 opacity-90">
-                    Discover eco-friendly products for a better planet and a healthier you.
+                <p class="text-lg lg:text-xl font-light mb-8 opacity-90">
+                    Discover eco-friendly products that are kind to the planet and perfect for your everyday needs.
                 </p>
-                <a href="productlisting.html" class="inline-block bg-white text-green-700 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
-                    Explore Our Shop
-                </a>
+                <div class="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="productlisting.html" class="bg-white text-green-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 mobile-touch-target">
+                        Shop Now
+                    </a>
+                    <a href="aboutus.html" class="border border-white text-white hover:bg-white hover:text-green-700 font-semibold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 mobile-touch-target">
+                        Learn More
+                    </a>
+                </div>
             </div>
+            <!-- Hero Image -->
             <div class="md:w-1/2 flex justify-center">
-                <img src="images/basket-full-vegetables-removebg-preview.png" alt="Eco-Friendly Products Assortment" class="rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 max-w-full h-auto">
+                <img src="https://placehold.co/500x350/EBF3E5/4CAF50?text=Eco+Products" alt="Eco-friendly products collection" class="rounded-xl shadow-2xl max-w-full h-auto object-cover">
             </div>
         </div>
     </section>
 
     <!-- Featured Categories Section -->
-    <section class="py-16 md:py-20 px-6 md:px-8 lg:px-12 bg-gray-50">
-        <div class="container mx-auto">
-            <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-12">Featured Categories</h2>
+    <section class="py-16 md:py-20 px-6 md:px-8 lg:px-12">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12">Explore Our Categories</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Category Card 1 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Home" alt="Home & Living" class="w-full h-48 object-cover">
-                    <div class="p-6 text-center">
+                <a href="productlisting.html?category=home" class="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2 mobile-touch-target">
+                    <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Home" alt="Home & Living" class="w-full h-48 object-cover rounded-t-xl">
+                    <div class="p-6">
                         <h3 class="text-xl font-semibold text-gray-800 mb-2">Home & Living</h3>
-                        <p class="text-gray-600 text-sm mb-4">Sustainable essentials for your home.</p>
-                        <a href="productlisting.html?category=home" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                        <p class="text-gray-600 text-sm">Sustainable essentials for your living space.</p>
                     </div>
-                </div>
+                </a>
                 <!-- Category Card 2 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Fashion" alt="Fashion & Apparel" class="w-full h-48 object-cover">
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sustainable Fashion</h3>
-                        <p class="text-gray-600 text-sm mb-4">Ethically sourced, stylish apparel.</p>
-                        <a href="productlisting.html?category=fashion" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                <a href="productlisting.html?category=personal-care" class="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2 mobile-touch-target">
+                    <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Care" alt="Personal Care" class="w-full h-48 object-cover rounded-t-xl">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Personal Care</h3>
+                        <p class="text-gray-600 text-sm">Nourish yourself with ethical beauty products.</p>
                     </div>
-                </div>
+                </a>
                 <!-- Category Card 3 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Beauty" alt="Beauty & Wellness" class="w-full h-48 object-cover">
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Beauty & Wellness</h3>
-                        <p class="text-gray-600 text-sm mb-4">Natural and organic care products.</p>
-                        <a href="productlisting.html?category=beauty" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                <a href="productlisting.html?category=accessories" class="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2 mobile-touch-target">
+                    <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Accessories" alt="Accessories" class="w-full h-48 object-cover rounded-t-xl">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Accessories</h3>
+                        <p class="text-gray-600 text-sm">Stylish and sustainable additions to your life.</p>
                     </div>
-                </div>
+                </a>
                 <!-- Category Card 4 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                    <img src="https://placehold.co/400x250/C6F6D5/2F855A?text=Kids" alt="Kids & Baby" class="w-full h-48 object-cover">
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Kids & Baby</h3>
-                        <p class="text-gray-600 text-sm mb-4">Safe, sustainable items for your little ones.</p>
-                        <a href="productlisting.html?category=kids" class="text-green-600 hover:text-green-800 font-medium transition duration-300">Shop Now &rarr;</a>
+                <a href="productlisting.html?category=kitchen" class="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2 mobile-touch-target">
+                    <img src="https://placehold.co/400x300/F0FDF4/10B981?text=Kitchen" alt="Kitchen" class="w-full h-48 object-cover rounded-t-xl">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Kitchen</h3>
+                        <p class="text-gray-600 text-sm">Eco-friendly tools for a greener kitchen.</p>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Why Choose Us Section -->
-    <section class="py-16 md:py-20 px-6 md:px-8 lg:px-12 bg-white">
+    <!-- Call to Action / Testimonials Section (Placeholder) -->
+    <section class="bg-green-100 py-16 md:py-20 px-6 md:px-8 lg:px-12 rounded-xl shadow-inner my-12">
         <div class="container mx-auto text-center">
-            <h2 class="text-4xl font-extrabold text-gray-800 mb-12">Why Choose The Everything Shop?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div class="flex flex-col items-center">
-                    <div class="bg-green-100 rounded-full p-4 mb-6">
-                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.92 12c0 3.072 1.873 5.783 4.582 7.15A13.928 13.928 0 0012 21c2.405 0 4.707-.847 6.559-2.252A13.928 13.928 0 0021.08 12c0-3.072-1.873-5.783-4.582-7.15z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Curated Quality</h3>
-                    <p class="text-gray-600">Every product is hand-picked for its sustainability, durability, and positive impact.</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-green-100 rounded-full p-4 mb-6">
-                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Ethical Sourcing</h3>
-                    <p class="text-gray-600">We partner with brands committed to fair labor practices and responsible production.</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-green-100 rounded-full p-4 mb-6">
-                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Community Focused</h3>
-                    <p class="text-gray-600">A portion of every sale supports environmental initiatives worldwide.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Call to Action Section -->
-    <section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-16 md:py-20 px-6 md:px-8 lg:px-12 rounded-t-3xl shadow-xl">
-        <div class="container mx-auto text-center">
-            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Ready to Make a Difference?</h2>
-            <p class="text-xl md:text-2xl mb-10 opacity-90">
-                Join our movement towards a more sustainable future. Shop consciously today!
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Join Our Community</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                Be part of a movement committed to sustainability. Shop with purpose and make a difference with every purchase.
             </p>
-            <a href="productlisting.html" class="inline-block bg-white text-green-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
-                Start Shopping Now
+            <a href="productlisting.html" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 mobile-touch-target">
+                Start Your Eco Journey
             </a>
         </div>
     </section>
 
-    <!-- Footer Section (Consistent with other pages) -->
+    <!-- Footer Section (Consistent across all pages) -->
     <footer class="bg-gray-800 text-white py-10 px-6 md:px-8 lg:px-12 rounded-t-xl">
         <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- About Us -->
@@ -236,20 +211,20 @@
             <div>
                 <h3 class="text-lg font-semibold mb-4 text-green-300">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200">Shop All</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Our Mission</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">FAQs</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Shipping & Returns</a></li>
+                    <li><a href="productlisting.html" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Shop All</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Our Mission</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Shipping & Returns</a></li>
                 </ul>
             </div>
             <!-- Categories -->
             <div>
                 <h3 class="text-lg font-semibold mb-4 text-green-300">Categories</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Home & Living</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Fashion</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Beauty & Wellness</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200">Kids & Baby</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Home & Living</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Fashion</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Beauty & Wellness</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition duration-200 mobile-touch-target">Kids & Baby</a></li>
                 </ul>
             </div>
             <!-- Contact Us -->
@@ -291,10 +266,10 @@
 
         let cart = []; // To store cart items from localStorage
 
-        // DOM Elements for header cart count and auth link
+        // DOM Elements
         const cartCountElement = document.getElementById('cart-count');
         const cartIcon = document.getElementById('cart-icon');
-        const authLinkContainer = document.getElementById('auth-link-container'); // Container for dynamic auth link
+        const authLinkContainer = document.getElementById('auth-link-container');
 
         /**
          * Displays a temporary message to the user.
@@ -332,16 +307,22 @@
         }
 
         /**
-         * Updates the cart item count displayed in the header.
+         * Loads cart data from localStorage.
          */
-        function updateCartCountDisplay() {
+        function loadCartFromLocalStorage() {
             try {
                 const storedCart = localStorage.getItem('ecoShopCart');
                 cart = storedCart ? JSON.parse(storedCart) : [];
             } catch (e) {
                 console.error("Error loading cart from local storage:", e);
-                cart = [];
+                cart = []; // Reset cart if corrupted
             }
+        }
+
+        /**
+         * Updates the cart item count displayed in the header.
+         */
+        function updateCartCountDisplay() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCountElement.textContent = totalItems;
             if (totalItems > 0) {
@@ -370,13 +351,13 @@
             if (user) {
                 const displayName = user.displayName || user.email;
                 authLinkContainer.innerHTML = `
-                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline">Welcome, ${displayName.split('@')[0]}!</a>
-                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300">Logout</button>
+                    <a href="profile.html" class="text-green-700 font-bold mr-2 hover:underline mobile-touch-target">Welcome, ${displayName.split('@')[0]}!</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target">Logout</button>
                 `;
                 document.getElementById('logout-btn').addEventListener('click', handleLogout);
             } else {
                 authLinkContainer.innerHTML = `
-                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300" id="account-link">Account</a>
+                    <a href="authentication.html" class="text-gray-600 hover:text-green-700 font-medium transition duration-300 mobile-touch-target" id="account-link">Account</a>
                 `;
                 if (initialAuthToken) {
                     signInWithCustomToken(auth, initialAuthToken)
@@ -390,10 +371,12 @@
             }
         });
 
-
-        // --- Event Listeners for Page Elements ---
+        // --- Event Listeners and Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Header "Shop Now" button (in header, for consistency)
+            loadCartFromLocalStorage(); // Load cart on page load
+            updateCartCountDisplay(); // Update display immediately
+
+            // Header "Shop Now" button
             document.querySelector('header .bg-green-600').addEventListener('click', () => {
                 window.location.href = 'productlisting.html';
             });
